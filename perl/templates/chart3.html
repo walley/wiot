@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>wiot [SN] [PQ]</title>
+  <meta charset="UTF-8">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+  <script src="http://grezl.eu/jquery-3.1.1.min.js"></script>
+
+  <style>
+.container {
+  width: 95%;
+}
+  </style>
+
+<script>
+  var data = [];
+  var labels = [];
+  var myChart;
+  var template_from = 0;
+  var template_to = 0;
+  var interval = "hourly";
+  var time_interval = "week";
+  var repeat_timer;
+
+  var dateTimeFormat = new Intl.DateTimeFormat('en-US', {
+    day : 'numeric',
+    month : 'numeric',
+    year : 'numeric',
+    hour : '2-digit',
+    minute : '2-digit',
+    hour12: false
+  });
+
+  function draw_chart(data, labels)
+  {
+    var ctx = document.getElementById('myChart').getContext('2d');
+    chart_config = {
+      type: 'line',
+      data: {
+      labels: labels,
+      datasets: [{
+        label: '[SN] [PQ]',
+        data: data,
+        backgroundColor: "rgba(29,216,229,0.6)"
+      }, {
+        label: 'test',
+        data: [0],
+        backgroundColor: "rgba(255,153,0,0.6)"
+      }]
+      }
+    }
+    myChart = new Chart(ctx, chart_config);
+  }
+
+  function get_data() {
+
+    url = 'http://grezl.eu/wiot/v1/sensor/[SN]/[PQ]?output=json&interval=[INTERVAL]',
+    url += "&from=[FROM]&to={TO}";
+
+    var jsonData = $.ajax({
+      url: url,
+//'http://grezl.eu/wiot/v1/sensor/[SN]/[PQ]?output=json&interval=[INTERVAL]',
+      dataType: 'json',
+    }).done(function (results) {
+      results.forEach(function(packet) {
+//        var labeldate = dateTimeFormat.format(new Date(packet[0] * 1000));
+        var d = new Date(packet[0] * 1000);
+        h = ("0" + (d.getHours())).slice(-2);
+        m = ("0" + (d.getMinutes())).slice(-2);
+        var labeldate = d.getDate() + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear() + " " + h + ":" + m;
+        labels.push(labeldate);
+        data.push(parseFloat(packet[1]));
+      });
+      draw_chart(data, labels);
+    });
+//.fail(function (results) {alert ("fail")});
+  }
+
+  function set_data_interval(i)
+  {
+    interval = i;
+    $("#date").text(i);
+  }
+
+  function update_graph()
+  {
+    calculate_time_interval(time_interval);
+    labels = [];
+    data = [];
+    url = 'http://grezl.eu/wiot/v1/sensor/[SN]/[PQ]?output=json&interval=' + interval;
+    if (template_from && template_to) {
+      url += "&from=" + template_from + "&to=" + template_to;
+    }
+
+//    alert(interval +" "+ url);
+
+    var jsonData = $.ajax({
+      url: url,
+      dataType: 'json',
+    }).done(function (results) {
+      results.forEach(function(packet) {
+//        var labeldate = dateTimeFormat.format(new Date(packet[0] * 1000));
+        var d = new Date(packet[0] * 1000);
+        h = ("0" + (d.getHours())).slice(-2);
+        m = ("0" + (d.getMinutes())).slice(-2);
+        var labeldate = d.getDate() + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear() + " " + h + ":" + m;
+        labels.push(labeldate);
+        data.push(parseFloat(packet[1]));
+      });
+      myChart.data.datasets[0].data = data;
+      myChart.data.labels = labels;
+      myChart.update();
+    });
+  }
+
+  function calculate_time_interval(what)
+  {
+  template_to = Math.floor(Date.now() / 1000);
+    switch (what) {
+      case "all":
+        template_to = 0;
+        template_from = 0;
+        break;
+      case "hour":
+        template_from = template_to - 3600;
+        break;
+      case "day":
+        template_from = template_to - 3600 * 24;
+        break;
+      case "week":
+        template_from = template_to - 3600 * 24 * 7;
+        break;
+      case "month":
+        template_from = template_to - 3600 * 24 * 31;
+        break;
+      case "year":
+        template_from = template_to - 31536000;
+          break;
+      default:
+        template_from = template_to - 3600 * 24 * 7;
+    }
+  }
+
+  function set_time_interval(what)
+  {
+    time_interval = what;
+    calculate_time_interval(what);
+    $("#time").text(what);
+  }
+
+  function update_repeat()
+  {
+    if(document.f.repeat.checked == true) {
+      repeat_timer = setInterval(update_graph, 10000);
+    } else {
+      clearTimeout(repeat_timer);
+    }
+  }
+
+  function init_stuff()
+  {
+    set_time_interval("week");
+    set_data_interval("hourly");
+  }
+
+</script>
+
+<body onload="init_stuff()">
+  <h2>wiot sensor [SN] - [PQ]</h2>
+  <p>time interval:
+  <a href='javascript:set_time_interval("hour")'>hour</a>
+  <a href='javascript:set_time_interval("day")'>day</a>
+  <a href='javascript:set_time_interval("week")'>week</a>
+  <a href='javascript:set_time_interval("month")'>month</a>
+  <a href='javascript:set_time_interval("year")'>year</a>
+  <a href='javascript:set_time_interval("all")'>all</a>
+  <span id='time'>time</span>
+  </p>
+  <p>data interval:
+  <a href='javascript:set_data_interval("yearly")'>year</a>
+  <a href='javascript:set_data_interval("monthly")'>month</a>
+  <a href='javascript:set_data_interval("weekly")'>week</a>
+  <a href='javascript:set_data_interval("daily")'>day</a>
+  <a href='javascript:set_data_interval("hourly")'>hour</a>
+  <a href='javascript:set_data_interval("decaminutely")'>decaminute</a>
+  <a href='javascript:set_data_interval("minutely")'>minute</a>
+  <a href='javascript:set_data_interval("all")'>tbd - all</a>
+  <span id='date'>date</span>
+  </p>
+
+<span>
+  <button onclick="update_graph()" style="height: 70px; width: 500px">UPDATE</button>
+  <form name="f">
+    <input type="checkbox" id="repeat" value="repeat" onclick="update_repeat()">
+  </form>
+</span>
+
+<script>
+  document.getElementById("repeat").checked = false;
+</script>
+
+<div class="container">
+  <div>
+    <canvas id="myChart"></canvas>
+  </div>
+</div>
+
+<script>
+  init_stuff();
+  get_data();
+//  draw_chart(data, labels);
+</script>
+
+</body>

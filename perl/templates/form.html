@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>form</title>
+  <meta charset="UTF-8">
+  <script src="http://grezl.eu/jquery-3.1.1.min.js"></script>
+
+<script>
+//var elements = {min:"int", max:"int", state:"bool"};
+//var values = {min:"15", max:"16", state:"1"};
+
+//////////
+[ARRAY]
+//////////
+
+function type_text(k, v)
+{
+  var str = "<input type='text' name='" + k +"' value='" + v + "' id='" + k + "'>";
+  return str;
+}
+
+function create_form()
+{
+  var out = "<!-- debug -->"
+  for (var key in elements) {
+    out += "<label>" 
+    out += "type: " + elements[key];
+    out += " " + key + ":" + values[key]
+    out += "</label><br>";
+    var v = values[key];
+
+    switch (elements[key]) {
+      case "int":
+        out += type_text(key,v);
+        break;
+      case "bool":
+        out += "<input type='checkbox' id='" + key + "'";
+        if (v = 1) {
+          out += " checked";
+        }
+        out += ">";
+
+        out += "<meter value='" + v + "'>" + v + "</meter>";
+        break;
+      default:
+        out +="shit";
+        break;
+    }
+
+    out +="<hr><br>\n";
+  }
+  return out;
+}
+
+
+function send_form()
+{
+  var data = $('form').serialize();
+  var url = $('form').attr('action');
+  var jqxhr = $.post(url, data, function(response) {
+  })
+  .done(function(res) {
+  })
+  .fail(function() {
+    alert( "error" );
+  })
+  .always(function() {
+  });
+}
+
+</script>
+
+</head>
+
+<body>
+<h1>[SN]</h1>
+
+<form action="/wiot/v1/data/[SN]" method="post" id="form">
+  <script>
+    document.write(create_form());
+  </script>
+</form>
+
+<button onclick="send_form();">send</button>
+
+</body>
+
+</html>
