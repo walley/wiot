@@ -37,6 +37,7 @@ use Apache2::RequestIO ();
 use Apache2::RequestRec ();
 use Apache2::ServerRec ();
 use Apache2::URI ();
+use Apache2::Cookie;
 
 use APR::Brigade ();
 use APR::Bucket ();
@@ -91,8 +92,11 @@ sub handler
 {
 
   openlog('wiot', 'cons,pid', 'local2');
-
   $r = shift;
+
+  my $cookie_jar = Apache2::Cookie::Jar->new($r);
+  my $sessid_cookie = $cookie_jar->cookies("oauth2sessid");
+
 
   $nextcloudclientid = $r->dir_config("nextcloudclientid");
   $nextcloudclientsecret = $r->dir_config("nextcloudclientsecret");
@@ -106,8 +110,6 @@ sub handler
 
   $hostname = $r->dir_config("hostname");
 
-  wsyslog('info', "request to $hostname YAY!");
-
   $LIMIT = 0;
   $OFFSET = 0;
   $ORDER = 0;
@@ -119,6 +121,7 @@ sub handler
   %GET = {};
 
   $user = $ENV{REMOTE_USER};
+
   $is_https = $ENV{HTTPS};
 
   &form_configuration();
@@ -192,8 +195,19 @@ sub handler
   my $api_param2 = $uri_components[5];
 
 #FIXME
-$user = "anonymous_coward";
+  if ($sessid_cookie ne "") {
+    wsyslog('info', 'cookie:' . $sessid_cookie);
+    @s = split('=', $sessid_cookie);
+    my $u = &get_session_username($s[1]);
+    if ($u ne "") {
+      $user = $u;
+    }
+  }
 #FIXME
+
+  if ($user eq "") {
+    $user = "anon@wiot.cz";
+  }
 
   wsyslog('info', "request to $hostname within $api_realm from $remote_ip by $user");
   wsyslog('info', "v: $api_version, r: $api_request, m: " . $r->method());
@@ -268,6 +282,8 @@ $user = "anonymous_coward";
     }
   }
 
+  &login_request_handler($api_request);
+
   if ($error_result != Apache2::Const::OK) {
     if ($error_result == 400) {error_400();}
     if ($error_result == 401) {error_401();}
@@ -281,6 +297,41 @@ $user = "anonymous_coward";
   closelog();
   return Apache2::Const::OK;
 
+}
+
+################################################################################
+sub debug_postdata
+################################################################################
+{
+  foreach (sort keys %post_data) {
+    wsyslog('debug', "postdata:" . $_ . "=" . $post_data{$_});
+  }
+}
+
+################################################################################
+sub login_request_handler()
+################################################################################
+{
+  my $api_request = shift;
+
+  if ($api_request eq "loginnextcloud") {
+    &login_nextcloud();
+  } elsif ($api_request eq "oknextcloud") {
+    &debug_postdata();
+    &login_ok_nextcloud($get_data{code});
+  } elsif ($api_request eq "username") {
+    &get_user_name();
+  } elsif ($api_request eq "ping") {
+    $r->print("pong");
+  } elsif ($api_request eq "authcheck") {
+    if (&authorized()) {
+      $r->print("$user is ok");
+    } else {
+      $r->print("go away $user");
+    }
+  } elsif ($api_request eq "logout") {
+    &logout();
+  }
 }
 
 ################################################################################
@@ -1005,18 +1056,7 @@ sub wsyslog
 sub error_400()
 ################################################################################
 {
-  $r->content_type('text/html; charset=utf-8');
-
-  $r->print('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>400 Bad request</title>
-</head><body>
-<h1>This is bad</h1>
-<p>and you should feel bad</p>
-<hr>
-<address>openstreetmap.social/2 Ulramegasuperdupercool/0.0.1 Server at api.openstreetmap.social Port 80</address>
-</body></html>
-');
+  &error_template("400 Bad request", "This is bad", "and you should feel bad");
 }
 
 ################################################################################
@@ -1032,7 +1072,7 @@ sub error_401()
 <h1>You can not do this</h1>
 <p>to me:(</p>
 <hr>
-<address>openstreetmap.social/2 Ulramegasuperdupercool/0.0.1 Server at api.openstreetmap.social Port 80</address>
+<address>' . $hostname . '/2 Ulramegasuperdupercool/0.0.1 Server at api.openstreetmap.social Port 80</address>
 </body></html>
 ');
 }
@@ -1051,7 +1091,7 @@ sub error_404()
 <p>We know nothing about this, except this message</p>
 <p><i>'.$error_message.'</i><p>
 <hr>
-<address>openstreetmap.social/2 Ulramegasuperdupercool/0.0.1 Server at api.openstreetmap.social Port 80</address>
+<address>' . $hostname . '/2 Ulramegasuperdupercool/0.0.1 Server at api.openstreetmap.social Port 80</address>
 </body></html>
 ');
 }
@@ -1060,25 +1100,34 @@ sub error_404()
 sub error_412()
 ################################################################################
 {
-  $r->content_type('text/html; charset=utf-8');
-
-  $r->print('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>412 Precondition Failed</title>
-</head><body>
-<h1>FAAAAAAAAAAAAAIIIIIIIIIIIIIILLLLLLL!!!11</h1>
-<p>Do NOT fail our preconditions, not cool!</p>
-<hr>
-<address>openstreetmap.social/2 Ulramegasuperdupercool/0.0.1 Server at api.openstreetmap.social Port 80</address>
-</body></html>
-');
+  &error_template("412 Precondition Failed", "FAAAAAAAAAAAAAIIIIIIIIIIIIIILLLLLLL!!!11", "Do NOT fail our preconditions, not cool!");
 }
 
 ################################################################################
 sub error_500()
 ################################################################################
 {
-  &error_template("500 Boo Boo","We don\'t know nothing about this");
+  &error_template("500 Boo Boo", "BOO!", "We don\'t know nothing about this");
+}
+
+################################################################################
+sub error_template()
+################################################################################
+{
+  my ($title, $header, $message) = @_;
+
+  $r->content_type('text/html; charset=utf-8');
+
+  $r->print('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>' . $title . '</title>
+</head><body>
+<h1>' . $header. '</h1>
+<p>' . $message . '</p>
+<hr>
+<address>Wframenotwork/3 Ulramegasuperdupercool/0.0.1 Server at ' . $hostname . ' Port 80</address>
+</body></html>
+');
 }
 
 ################################################################################
@@ -1336,6 +1385,25 @@ sub get_user_name()
 }
 
 ################################################################################
+sub get_session_username
+################################################################################
+{
+  my $sessid = shift;
+
+  wsyslog("info", "get_session_username $sessid");
+
+  if ($sessid eq "") {
+    return "";
+  }
+
+  my $query = "select username from session where sessid=?";
+  my $sth = $dbh->prepare($query) or return "";
+  my $rv = $sth->execute($sessid) or return "";
+  my @row = $sth->fetchrow_array();
+  return $row[0];
+}
+
+################################################################################
 sub login_nextcloud()
 ################################################################################
 {
@@ -1344,11 +1412,11 @@ sub login_nextcloud()
   $uri_redirect .= "response_type=code&";
   $uri_redirect .= "client_id=$client_id&";
   $uri_redirect .= "state=yo&";
-  $uri_redirect .= "redirect_uri=https://api.openstreetmap.social/table/oknextcloud";
+  $uri_redirect .= "redirect_uri=https://wiot.cz/wiot/v1/oknextcloud";
 
   $r->print("<html>");
   $r->print("<head>");
-  $r->print("<meta http-equiv='REFRESH' content='1;url=$uri_redirect'>");
+  $r->print("<meta http-equiv='REFRESH' content='2;url=$uri_redirect'>");
   $r->print("</head>");
   $r->print("<body>");
   $r->print("<p>this will log you in with nextcloud and send you back to landing page, ");
@@ -1369,15 +1437,20 @@ sub login_ok_nextcloud()
   my %form;
   my %oauth2_data;
 
+  wsyslog("info", "login_ok_nextcloud: start");
+
   $form{'client_id'} = $nextcloudclientid;
   $form{'client_secret'} = $nextcloudclientsecret;
   $form{'code'} = $code;
   $form{'grant_type'} = 'authorization_code';
-  $form{'redirect_uri'} = "http://api.openstreetmap.social/webapps/login.html";
+  $form{'redirect_uri'} = "http://wiot.cz/login.html";
   $form{'state'}='yo';
+
 
   my $response = $ua->post($url, \%form);
   my $content = $response->decoded_content();
+
+  wsyslog("info", "login_ok_nextcloud: after post");
 
   $oauth2_data = decode_json($content);
 
@@ -1428,11 +1501,11 @@ sub login_ok_nextcloud()
     return;
   };
 
-  $login_redirect = "http://api.openstreetmap.social/webapps/login.html";
+  $login_redirect = "http://wiot.cz/login.html";
 
   $r->print("<html>");
   $r->print("<head>");
-  $r->print("<meta http-equiv='REFRESH' content='1;url=$login_redirect'>");
+  $r->print("<meta http-equiv='REFRESH' content='10;url=$login_redirect'>");
   $r->print("</head>");
   $r->print("<body>");
   $r->print("<p>login ok ....</p>");
@@ -1442,6 +1515,7 @@ sub login_ok_nextcloud()
   $r->print("</body>");
   $r->print("</html>");
 }
+
 
 
 1;
