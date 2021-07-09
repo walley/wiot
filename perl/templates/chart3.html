@@ -136,7 +136,17 @@
 
   function calculate_time_interval(what)
   {
-  template_to = Math.floor(Date.now() / 1000);
+    if (global_to) {
+      template_to = global_to;
+    } else {
+      template_to = Math.floor(Date.now() / 1000);
+    }
+
+    if (global_from) {
+      template_from = global_from;
+      return;
+    }
+
     switch (what) {
       case "all":
         template_to = 0;
@@ -166,6 +176,8 @@
 
   function set_time_interval(what)
   {
+    update_from('');
+    update_to('');
     time_interval = what;
     calculate_time_interval(what);
     $("#time").text(what);
@@ -214,6 +226,7 @@
       defaultDate: "-1w",
       dateFormat: 'dd/mm/yy',
       changeMonth: true,
+      changeYear: true,
       numberOfMonths: 1,
       onSelect: function(selectedDate) {
         var d = new Date($.datepicker.parseDate('dd/mm/yy', $(this).val()));
@@ -224,6 +237,7 @@
     dp_to = $( "#dp_to" ).datepicker({
       firstDay:1,
       changeMonth: true,
+      changeYear: true,
       dateFormat: 'dd/mm/yy',
       numberOfMonths: 1,
       onSelect: function(selectedDate) {
@@ -237,7 +251,12 @@
 
 <body xonload="init_stuff()">
   <h2>wiot sensor [SN] - [PQ]</h2>
-  <p>time interval:
+
+<p>from [<span id='from'>[FROM]</span>] - to [<span id='to'>[TO]</span>]</p>
+
+<label for="dp_from">From</label><input type="text" id="dp_from" name="dp_from">
+<label for="dp_to">to</label><input type="text" id="dp_to" name="dp_to">
+  <p>time interval from now:
   <a href='javascript:set_time_interval("hour")'>hour</a>
   <a href='javascript:set_time_interval("day")'>day</a>
   <a href='javascript:set_time_interval("week")'>week</a>
@@ -258,12 +277,6 @@
   <span id='date'>date</span>
   </p>
 
-<hr>
-<p>from [<span id='from'>[FROM]</span>] - to [<span id='to'>[TO]</span>]</p>
-
-<label for="dp_from">From</label><input type="text" id="dp_from" name="dp_from">
-<label for="dp_to">to</label><input type="text" id="dp_to" name="dp_to">
-<hr>
 
 <span>
   <button onclick="update_graph()" style="height: 70px; width: 500px">UPDATE</button>
