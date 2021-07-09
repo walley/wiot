@@ -194,7 +194,6 @@ sub handler
   my $api_param = $uri_components[4];
   my $api_param2 = $uri_components[5];
 
-#FIXME
   if ($sessid_cookie ne "") {
     wsyslog('info', 'cookie:' . $sessid_cookie);
     @s = split('=', $sessid_cookie);
@@ -203,7 +202,6 @@ sub handler
       $user = $u;
     }
   }
-#FIXME
 
   if ($user eq "") {
     $user = "anon@wiot.cz";
@@ -1443,7 +1441,7 @@ sub login_ok_nextcloud()
   $form{'client_secret'} = $nextcloudclientsecret;
   $form{'code'} = $code;
   $form{'grant_type'} = 'authorization_code';
-  $form{'redirect_uri'} = "http://wiot.cz/login.html";
+  $form{'redirect_uri'} = "https://wiot.cz/login.html";
   $form{'state'}='yo';
 
 
@@ -1501,7 +1499,7 @@ sub login_ok_nextcloud()
     return;
   };
 
-  $login_redirect = "http://wiot.cz/login.html";
+  $login_redirect = "https://wiot.cz/login.html";
 
   $r->print("<html>");
   $r->print("<head>");
