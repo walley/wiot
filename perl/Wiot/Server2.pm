@@ -83,6 +83,8 @@ my $hostname;
 
 my $nextcloudclientid;
 my $nextcloudclientsecret;
+my $githubclientid;
+my $githubclientsecret;
 my $nextcloudserver;
 my $templatepath;
 
@@ -90,14 +92,14 @@ my $templatepath;
 sub handler
 ################################################################################
 {
-
   openlog('wiot', 'cons,pid', 'local2');
   $r = shift;
 
   my $cookie_jar = Apache2::Cookie::Jar->new($r);
   my $sessid_cookie = $cookie_jar->cookies("oauth2sessid");
 
-
+  $githubclientid = $r->dir_config("githubclientid");
+  $githubclientsecret = $r->dir_config("githubclientsecret");
   $nextcloudclientid = $r->dir_config("nextcloudclientid");
   $nextcloudclientsecret = $r->dir_config("nextcloudclientsecret");
   $nextcloudserver = $r->dir_config("nextcloudserver");
@@ -312,7 +314,12 @@ sub login_request_handler()
 {
   my $api_request = shift;
 
-  if ($api_request eq "loginnextcloud") {
+  if ($api_request eq "logingithub") {
+    &login_github();
+  } elsif ($api_request eq "okgithub") {
+    &debug_postdata();
+    &login_ok_github($get_data{code});
+  } elsif ($api_request eq "loginnextcloud") {
     &login_nextcloud();
   } elsif ($api_request eq "oknextcloud") {
     &debug_postdata();
@@ -428,8 +435,6 @@ sub connect_db
 ################################################################################
 {
   my $dbpath = $r->dir_config("dbpath");
-  #my $dbpath = "/var/www/grezl.eu/wiot.sqlite";
-  #$dbpath = "/tmp/wiot.sqlite";
   my $dbfile = $dbpath;
 
   $dbh = DBI->connect("dbi:SQLite:$dbfile", "", "",
@@ -1424,6 +1429,24 @@ sub login_nextcloud()
 }
 
 ################################################################################
+sub login_github()
+################################################################################
+{
+  my $client_id = $githubclientid;
+  my $uri_redirect = "https://github.com/login/oauth/authorize?client_id=$client_id";
+
+  $r->print("<html>");
+  $r->print("<head>");
+  $r->print("<meta http-equiv='REFRESH' content='1;url=$uri_redirect'>");
+  $r->print("</head>");
+  $r->print("<body>");
+  $r->print("<p>this will log you in with github and send you back to landing page, ");
+  $r->print("or do it <a href='$uri_redirect'>yourself</a></p>");
+  $r->print("</body>");
+  $r->print("</html>");
+}
+
+################################################################################
 sub login_ok_nextcloud()
 ################################################################################
 {
@@ -1468,14 +1491,6 @@ sub login_ok_nextcloud()
     return;
   }
 
-#  my $uri_redirect = "http://api.openstreetmap.cz/webapps/login.html";
-#  $r->headers_out->set("X-AuthW" => $acc);
-#  $url = "https://cloud.grezl.eu/ocs/v1.php/cloud/users/$user";
-#  $ua->default_header("Authorization" => "Bearer $acc");
-#  my $response = $ua->get($url);
-#  my $content = $response->decoded_content();
-# my $parsed = decode_json($content);
-
   my $oauth_user = $user;
   $oauth_user .= '@cloud.grezl.eu';
 
@@ -1514,7 +1529,87 @@ sub login_ok_nextcloud()
   $r->print("</html>");
 }
 
+################################################################################
+sub login_ok_github()
+################################################################################
+{
 
+  my $code = shift;
+
+  my $url = 'https://github.com/login/oauth/access_token';
+  my $ua = LWP::UserAgent->new(); 
+
+  my %form;
+  $form{'client_id'} = $githubclientid;
+  $form{'client_secret'} = $githubclientsecret;
+  $form{'code'} = $code;
+  #$form{'redirect_uri'}='';
+  #$form{'state'}='';
+
+  my $response = $ua->post($url, \%form);
+  my $content = $response->decoded_content();
+
+  my %oauth2_data = &parse_query_str($content);
+  my $acc = %oauth2_data{access_token};
+
+  if ($acc eq "") {
+    $error_result = 400;
+    wsyslog("info", "400: oauth2 no acc ($acc)");
+    return;
+  }
+
+  $r->headers_out->set("X-AuthW" => $acc);
+
+  my $uri_redirect = "http://wiot.cz/login.html";
+
+  $url = "https://api.github.com/user?access_token=$acc";
+  my $response = $ua->get($url);
+  my $content = $response->decoded_content();
+
+  my $parsed = decode_json($content);
+  my $oauth_user = $parsed->{login};
+  $oauth_user .= '@github';
+
+  #fixme check github response
+
+  my $sessid = $request_id."-".time();
+
+  wsyslog("info", "login_ok_github:$oauth_user");
+
+  $c_out = Apache2::Cookie->new($r,
+             -name  => "oauth2sessid",
+             -value => $sessid,
+             -expires => '+10d',
+  );
+  $c_out->path("/");
+  $c_out->bake($r);
+
+  $query = "insert into session (acc, sessid, username) values ('$acc', '$sessid', '$oauth_user')";
+  my $sth = $dbh->prepare($query);
+  my $res = $sth->execute() or do {
+    wsyslog("info", "500: oauth2 ok  " . $DBI::errstr . " $query");
+    $error_result = 500;
+    return;
+  };
+
+  $login_redirect = "https://wiot.cz/login.html";
+
+  $r->print("<html>");
+  $r->print("<head>");
+  $r->print("<meta http-equiv='REFRESH' content='1;url=$login_redirect'>");
+  $r->print("</head>");
+  $r->print("<body>");
+  $r->print("<p>login ok? ....</p> <pre>$content </pre>");
+
+  $r->print("<h1>~=." . $parsed->{login} . " .=~</h1>");
+
+  $r->print("<pre>" . Dumper(\%oauth2_data) . "</pre>");
+  $r->print("<pre>" . Dumper(\$parsed) . "</pre>");
+  $r->print("<pre>" .$response->as_string() . "</pre>");
+
+
+  $r->print("</body>");
+  $r->print("</html>");
+}
 
 1;
-
