@@ -1,6 +1,6 @@
 #
 #   wiot handler, wiot
-#   Copyright (C) 2016-2020 Michal Grezl
+#   Copyright (C) 2016-2021 Michal Grezl
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -206,7 +206,7 @@ sub handler
   }
 
   if ($user eq "") {
-    $user = "anon@wiot.cz";
+    $user = "anon\@wiot.cz";
   }
 
   wsyslog('info', "request to $hostname within $api_realm from $remote_ip by $user");
