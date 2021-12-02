@@ -4,7 +4,7 @@
 <head>
   <title>form</title>
   <meta charset="UTF-8">
-  <script src="http://grezl.eu/jquery-3.1.1.min.js"></script>
+  <script src="https://grezl.eu/jquery-3.1.1.min.js"></script>
 
 <script>
 //var elements = {min:"int", max:"int", state:"bool"};
@@ -61,9 +61,10 @@ function send_form()
   var jqxhr = $.post(url, data, function(response) {
   })
   .done(function(res) {
+    $('#result').text('done ' + res);
   })
-  .fail(function() {
-    alert( "error" );
+  .fail(function(jqxhr, status, error) {
+    $('#result').text('error ' + status + " " + error);
   })
   .always(function() {
   });
@@ -83,6 +84,10 @@ function send_form()
 </form>
 
 <button onclick="send_form();">send</button>
+
+<div id="result">
+<p>result</p>
+</div>
 
 </body>
 
