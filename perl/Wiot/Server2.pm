@@ -1098,7 +1098,6 @@ sub template()
   };
 
   $fcontent = read_file($file);
-  #@fcontent = <$fh>;
   $fcontent =~ s/\[PQ\]/$p2/gi;
   $fcontent =~ s/\[SN\]/$p1/gi;
   $fcontent =~ s/\[INTERVAL\]/$interval/gi;
@@ -1308,9 +1307,7 @@ sub form_template()
 {
   my ($file, $serial) = @_;
 
-  wsyslog("info","form_template(): $file, $serial");
-
-  my $data;
+  wsyslog("debug","form_template(): $file, $serial");
 
   $elements = &form_elements($serial);
   $values = "var values = {low:\"15\", hi:\"16\", state:\"1\", x:1};";
@@ -1318,24 +1315,19 @@ sub form_template()
 
   $array = $elements . "\n" . $values . "\n";
 
-  $data{max} = 16;
-  $data{min} = 15;
-  $data{state} = 1;
-
   my $fcontent = "";
 
   open(my $fh, "<", $file) or do {
-    return "nic template";
-    wsyslog("info","form_template(): failed to open");
+    return "nic template not found";
+    wsyslog("info","form_template(): failed to open $file");
   };
 
   $fcontent = read_file($file);
-  #@fcontent = <$fh>;
   $fcontent =~ s/\[PQ\]/$p2/gi;
   $fcontent =~ s/\[SN\]/$serial/gi;
   $fcontent =~ s/\[INTERVAL\]/$interval/gi;
-
   $fcontent =~ s/\[ARRAY\]/$array/gi;
+
   return $fcontent;
 }
 
