@@ -195,6 +195,7 @@ sub handler
   my $api_request = $uri_components[3];
   my $api_param = $uri_components[4];
   my $api_param2 = $uri_components[5];
+  my $api_param3 = $uri_components[6];
 
   if ($sessid_cookie ne "") {
     wsyslog('info', 'cookie:' . $sessid_cookie);
@@ -211,6 +212,7 @@ sub handler
 
   wsyslog('info', "request to $hostname within $api_realm from $remote_ip by $user");
   wsyslog('info', "v: $api_version, r: $api_request, m: " . $r->method());
+  wsyslog('info', "p1: $api_param p2: $api_param2 p3: $api_param3");
 
   $syslog_request = "from " . $GET{from};
   $syslog_request .= ", to " . $GET{to};
@@ -240,7 +242,13 @@ sub handler
       wsyslog("info", "store res:".$error_message);
     }
   } elsif ($api_request eq "list") {
+    $out = &list_full();
+    &direct_output_html($out);
+  } elsif ($api_request eq "list_sensors") {
     $out = &list_sensors();
+    &direct_output_html($out);
+  } elsif ($api_request eq "sensor_detail") {
+    $out = &sensor_detail($api_param);
     &direct_output_html($out);
   } elsif ($api_request eq "graph") {
     if ($r->method() eq "GET") {
@@ -614,10 +622,11 @@ sub list_pq()
 ################################################################################
 {
   my $sensor_id = shift;
+
   my $out = "";
   my $url = "http://" . $hostname . "/wiot/v1/sensor";
+  my $query = "select distinct pq from data where sn='".$sensor_id."'";
 
-  $query = "select distinct pq from data where sn='".$sensor_id."'";
   $res = $dbh->selectall_arrayref($query) or do {
     wsyslog("info", "list_pq dberror" . $DBI::errstr);
     $error_result = 500;
@@ -661,6 +670,42 @@ sub list_sensors
     $out .= "nic elementu";
   }
 
+  my $url = "http://" . $hostname . "/wiot/v1/sensor_detail";
+
+  $out .= "<h1>Sensors</h1>\n";
+  $out .= "<ol>\n";
+  foreach my $row (@$res) {
+    my ($sn) = @$row;
+    $out .= "<li>";
+    $out .= "<a href='$url/$sn'>$sn</a>\n";
+    $out .= "</li>\n";
+  }
+  $out .= "</ol>\n";
+  $out .= &page_footer();
+
+  return $out;
+}
+
+################################################################################
+sub list_full
+################################################################################
+{
+  my $out = &page_header();
+
+  $query = "select distinct sn from data";
+
+  $res = $dbh->selectall_arrayref($query) or do {
+    wsyslog("info", "list_sensors dberror " . $DBI::errstr);
+    $error_result = 500;
+    return 500;
+  };
+
+  my $num_elements = @$res;
+
+  if (!$num_elements) {
+    $out .= "nic elementu";
+  }
+
   my $url = "http://" . $hostname . "/wiot/v1/sensor";
 
   $out .= "<h1>Sensors</h1>\n";
@@ -673,6 +718,19 @@ sub list_sensors
     $out .= "</li>\n";
   }
   $out .= "</ol>\n";
+  $out .= &page_footer();
+
+  return $out;
+}
+
+################################################################################
+sub sensor_detail()
+################################################################################
+{
+  my $sensor_id = shift;
+
+  my $out = &page_header();
+  $out .= &list_pq($sensor_id);
   $out .= &page_footer();
 
   return $out;
@@ -1032,6 +1090,8 @@ sub template()
 {
   my ($file, $p1, $p2, $interval, $from, $to) = @_;
   my $fcontent = "";
+
+  wsyslog('debug', "$temolate(): $file, $p1, $p2, $interval, $from, $to");
 
   open(my $fh, "<", $file) or do {
     return "nic template";
