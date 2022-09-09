@@ -126,8 +126,6 @@ sub handler
 
   $is_https = $ENV{HTTPS};
 
-  &form_configuration();
-
   $r->no_cache(1);
 
   &connect_db();
@@ -273,14 +271,14 @@ sub handler
       }
 
     } elsif ($r->method() eq "POST") {
-      &wsyslog("debug", "data post: param: $api_param, $api_param2");
-      $out = "postdata request  data:" . Dumper %post_data;
+      &wsyslog("debug", "data post: param: ($api_param, $api_param2)");
+      $out = "api req data:(" . Dumper(%post_data) . ").";
       foreach $k (keys %post_data) {
         #$sn, $var, $value
-        &wsyslog("debug", "data post: kkkkk $k");
+        &wsyslog("debug", "api req: data :  post: key ($k)");
         &set_input_value($api_param, $k, $post_data{$k});
       }
-      $r->print("OK");
+      $r->print($out."OK");
     }
   } elsif ($api_request eq "last") {
     if ($r->method() eq "GET") {
@@ -1245,7 +1243,7 @@ sub form_elements()
 {
   my $id = shift;
 
-  &form_configuration();
+  wsyslog("info", "form_elements(): id: $id");
 
   my $out = "var elements = {";
   foreach $key (keys %{$form{$id}})
@@ -1298,7 +1296,38 @@ sub form_configuration()
   $form{thermostat0}{low} = "int";
   $form{thermostat0}{hi} = "int";
   $form{thermostat0}{state} = "bool";
+
   $form{test}{x} = "int";
+
+  $form{light0}{switch} = "bool";
+
+#CREATE TABLE input (
+#id integer primary key AUTOINCREMENT,
+#sn varchar,
+#variable varchar,
+#value numeric,
+#type varchar
+#);
+
+  my $query = "select * from input";
+
+  my $sth = $dbh->prepare($query) or do {
+    wsyslog("info", "form_configuration(): prepare $query, error:".$DBI::errstr);
+    return;
+  };
+
+  $sth->execute($sn) or do {
+    wsyslog("info", "form_configuration(): execute $query, error:".$DBI::errstr);
+    return;
+  };
+
+  while(my ($sn, $var, $val, $type) = $sth->fetchrow_array()) {
+    $form{$sn}{$var} = $type;
+  }
+
+  $sth->finish();
+
+
 }
 
 ################################################################################
@@ -1307,11 +1336,17 @@ sub form_template()
 {
   my ($file, $serial) = @_;
 
+  &form_configuration();
+
   wsyslog("debug","form_template(): $file, $serial");
 
+#example  $values = "var values = {low:\"15\", hi:\"16\", state:\"1\", x:1};";
+
   $elements = &form_elements($serial);
-  $values = "var values = {low:\"15\", hi:\"16\", state:\"1\", x:1};";
+  wsyslog("debug","form_template(): elements: $elements");
+
   $values = &form_values($serial);
+  wsyslog("debug","form_template(): values: $values");
 
   $array = $elements . "\n" . $values . "\n";
 
@@ -1323,9 +1358,7 @@ sub form_template()
   };
 
   $fcontent = read_file($file);
-  $fcontent =~ s/\[PQ\]/$p2/gi;
   $fcontent =~ s/\[SN\]/$serial/gi;
-  $fcontent =~ s/\[INTERVAL\]/$interval/gi;
   $fcontent =~ s/\[ARRAY\]/$array/gi;
 
   return $fcontent;

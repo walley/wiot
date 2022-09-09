@@ -7,6 +7,7 @@
   <script src="https://grezl.eu/jquery-3.1.1.min.js"></script>
 
 <script>
+//version wiot.cz 0.1
 //var elements = {min:"int", max:"int", state:"bool"};
 //var values = {min:"15", max:"16", state:"1"};
 
@@ -18,6 +19,26 @@ function type_text(k, v)
 {
   var str = "<input type='text' name='" + k +"' value='" + v + "' id='" + k + "'>";
   return str;
+}
+
+function on_off(name, on)
+{
+  var out = "";
+  var checked_on = "";
+  var checked_off = "";
+
+  if (on == "on") {
+    checked_on = "checked";
+  } else {
+    checked_off = "checked";
+  }
+
+  out += "<input type='radio' id='on' name='" + name + "' value='on' "+ checked_on +">";
+  out += "<label for='ON'>on</label><br>";
+  out += "<input type='radio' id='off' name='" + name + "' value='off' "+ checked_off +">";
+  out += "<label for='OFF'>off</label><br>";
+
+  return out;
 }
 
 function create_form()
@@ -35,13 +56,15 @@ function create_form()
         out += type_text(key,v);
         break;
       case "bool":
-        out += "<input type='checkbox' id='" + key + "'";
-        if (v = 1) {
-          out += " checked";
-        }
-        out += ">";
+        out += on_off(key, v);
 
-        out += "<meter value='" + v + "'>" + v + "</meter>";
+        if (v == "on") {
+          m = 100;
+        } else {
+          m = 0;
+        }
+
+        out += "<meter value='" + m + "'>" + m + "</meter>";
         break;
       default:
         out +="shit";
@@ -50,6 +73,7 @@ function create_form()
 
     out +="<hr><br>\n";
   }
+
   return out;
 }
 
