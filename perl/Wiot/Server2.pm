@@ -378,6 +378,22 @@ sub direct_output_html()
   }
 }
 
+################################################################################
+sub parse_query_str
+################################################################################
+{
+  my $str = shift;
+  my %h = ();
+  if (length ($str) > 0) {
+    my @pairs = split(/&/, $str);
+    foreach my $pair (@pairs) {
+      my ($name, $value) = split(/=/, $pair);
+      $value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
+      $h{$name} = $value;
+    }
+  }
+  return %h;
+}
 
 ################################################################################
 sub parse_query_string
@@ -1634,6 +1650,8 @@ sub login_ok_github()
   my $response = $ua->post($url, \%form);
   my $content = $response->decoded_content();
 
+  wsyslog("info", "login_ok_github() response: $content");
+
   my %oauth2_data = &parse_query_str($content);
   my $acc = %oauth2_data{access_token};
 
@@ -1647,13 +1665,16 @@ sub login_ok_github()
 
   my $uri_redirect = "http://wiot.cz/login.html";
 
-  $url = "https://api.github.com/user?access_token=$acc";
-  my $response = $ua->get($url);
+#  $url = "https://api.github.com/user?access_token=$acc";
+  $url = "https://api.github.com/user";
+
+  my $response = $ua->get($url, "Authorization" => "token $acc");
   my $content = $response->decoded_content();
 
   my $parsed = decode_json($content);
+
   my $oauth_user = $parsed->{login};
-  $oauth_user .= '@github';
+  $oauth_user .= "@github";
 
   #fixme check github response
 
@@ -1681,20 +1702,24 @@ sub login_ok_github()
 
   $r->print("<html>");
   $r->print("<head>");
-  $r->print("<meta http-equiv='REFRESH' content='1;url=$login_redirect'>");
-  $r->print("</head>");
-  $r->print("<body>");
-  $r->print("<p>login ok? ....</p> <pre>$content </pre>");
+  $r->print("<meta http-equiv='REFRESH' content='360;url=$login_redirect'>");
+  $r->print("</head>\n");
+  $r->print("<body>\n");
+  $r->print("<p>github login</p>\n");
 
-  $r->print("<h1>~=." . $parsed->{login} . " .=~</h1>");
+  $r->print("<h1>~=." . $oauth_user . ".=~</h1>\n");
+  $r->print("<h2>content</h2>\n");
+  $r->print("<pre>$content</pre>\n");
+  $r->print("<h2>oauth2_data</h2>");
+  $r->print("<pre>" . Dumper(\%oauth2_data) . "</pre>\n");
+  $r->print("<h2>parsed</h2>\n");
+  $r->print("<pre>" . Dumper(\$parsed) . "</pre>\n");
+  $r->print("<h2>response</h2>\n");
+  $r->print("<pre>" .$response->as_string() . "</pre>\n");
 
-  $r->print("<pre>" . Dumper(\%oauth2_data) . "</pre>");
-  $r->print("<pre>" . Dumper(\$parsed) . "</pre>");
-  $r->print("<pre>" .$response->as_string() . "</pre>");
 
-
-  $r->print("</body>");
-  $r->print("</html>");
+  $r->print("</body>\n");
+  $r->print("</html>\n");
 }
 
 1;
