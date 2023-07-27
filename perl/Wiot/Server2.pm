@@ -1674,7 +1674,7 @@ sub login_ok_github()
   my $parsed = decode_json($content);
 
   my $oauth_user = $parsed->{login};
-  $oauth_user .= "@github";
+  $oauth_user .= "\@github";
 
   #fixme check github response
 
