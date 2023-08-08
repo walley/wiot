@@ -256,7 +256,12 @@ sub handler
       }
     }
   } elsif ($api_request eq "form") {
-    $out = &form_template($templatepath . "form.html", $api_param);
+    if ($OUTPUT_FORMAT eq "html") {
+      $out = &form_template($templatepath . "form.html", $api_param);
+    } elsif ($OUTPUT_FORMAT eq "json") {
+      $out = &form_output($api_param);
+    }
+
     $r->print($out);
 
   } elsif ($api_request eq "data") {
@@ -1273,6 +1278,25 @@ sub form_elements()
 }
 
 ################################################################################
+sub form_elements_json()
+################################################################################
+{
+  my $id = shift;
+  my $out ="";
+  my %elements;
+
+  wsyslog("info", "form_elements(): id: $id");
+
+  foreach $key (keys %{$form{$id}})
+  {
+    $elements{"$key"} = $form{$id}{$key};
+  }
+
+  $out = encode_json(%elements);
+  return $out;
+}
+
+################################################################################
 sub form_values()
 ################################################################################
 {
@@ -1342,8 +1366,26 @@ sub form_configuration()
   }
 
   $sth->finish();
+}
 
+################################################################################
+sub form_output()
+################################################################################
+{
+  my $out = "";
+  my ($serial) = @_;
+  wsyslog("debug","form_output(): $serial");
 
+  &form_configuration();
+
+  my $elements = &form_elements_json($serial);
+  wsyslog("debug","form_template(): elements: $elements");
+
+  my $values = &form_values($serial);
+  wsyslog("debug","form_template(): values: $values");
+
+  $out = "[" . $elements . "," . $values . "]";
+  return $out;
 }
 
 ################################################################################
@@ -1358,10 +1400,10 @@ sub form_template()
 
 #example  $values = "var values = {low:\"15\", hi:\"16\", state:\"1\", x:1};";
 
-  $elements = &form_elements($serial);
+  my $elements = &form_elements($serial);
   wsyslog("debug","form_template(): elements: $elements");
 
-  $values = &form_values($serial);
+  my $values = &form_values($serial);
   wsyslog("debug","form_template(): values: $values");
 
   $array = $elements . "\n" . $values . "\n";
