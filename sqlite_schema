@@ -29,24 +29,23 @@ sessid varchar primary key,
 username varchar
 );
 
-CREATE TABLE house (
+create table house (
 id integer primary key AUTOINCREMENT,
 name varchar,
 address varchar,
-location varchar
+location varchar,
 );
 
-CREATE TABLE room (
+create table room (
 id integer primary key AUTOINCREMENT,
 house numeric,
 name varchar
 );
 
-CREATE TABLE devices (
+create table devices
 id integer primary key AUTOINCREMENT,
-name varchar,
-type varchar,
-image varchar,
-room integer,
-note varchar
+name varchar
+room integer
+type varchar
 );
+
