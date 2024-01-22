@@ -1,6 +1,6 @@
 #
 #   wiot handler, wiot
-#   Copyright (C) 2016-2023 Michal Grezl
+#   Copyright (C) 2016-2024 Michal Grezl
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -242,6 +242,9 @@ sub handler
   } elsif ($api_request eq "list") {
     $out = &list_full();
     &direct_output_html($out);
+  } elsif ($api_request eq "devices") {
+    $out = &list_devices();
+    $r->print($out);
   } elsif ($api_request eq "list_sensors") {
     $out = &list_sensors();
     &direct_output_html($out);
@@ -670,10 +673,34 @@ sub list_pq()
 }
 
 ################################################################################
+sub list_devices
+################################################################################
+{
+  my $out = "";
+
+  $query = "select * from devices";
+
+#  $res = $dbh->selectall_arrayref($query) or do {
+  $res = $dbh->selectall_hashref($query,"name") or do {
+    wsyslog("info", "list_sensors dberror " . $DBI::errstr);
+    $error_result = 500;
+    return 500;
+  };
+
+  if ($OUTPUT_FORMAT eq "json") {
+    #json
+    $out = encode_json(\%$res);
+  } else {
+    #html
+  }
+  return $out;
+}
+
+################################################################################
 sub list_sensors
 ################################################################################
 {
-  my $out = &page_header();
+  my $out = "";
 
   $query = "select distinct sn from data";
 
@@ -685,23 +712,30 @@ sub list_sensors
 
   my $num_elements = @$res;
 
-  if (!$num_elements) {
-    $out .= "nic elementu";
+  if ($OUTPUT_FORMAT eq "json") {
+    #json
+    $out = encode_json(\@$res);
+  } else {
+    #html
+    $out = &page_header();
+
+    if (!$num_elements) {
+      $out .= "nic elementu";
   }
 
-  my $url = "http://" . $hostname . "/wiot/v1/sensor_detail";
+    my $url = "http://" . $hostname . "/wiot/v1/sensor_detail";
 
-  $out .= "<h1>Sensors</h1>\n";
-  $out .= "<ol>\n";
-  foreach my $row (@$res) {
-    my ($sn) = @$row;
-    $out .= "<li>";
-    $out .= "<a href='$url/$sn'>$sn</a>\n";
-    $out .= "</li>\n";
+    $out .= "<h1>Sensors</h1>\n";
+    $out .= "<ol>\n";
+    foreach my $row (@$res) {
+      my ($sn) = @$row;
+      $out .= "<li>";
+      $out .= "<a href='$url/$sn'>$sn</a>\n";
+      $out .= "</li>\n";
+    }
+    $out .= "</ol>\n";
+    $out .= &page_footer();
   }
-  $out .= "</ol>\n";
-  $out .= &page_footer();
-
   return $out;
 }
 
@@ -1285,14 +1319,14 @@ sub form_elements_json()
   my $out ="";
   my %elements;
 
-  wsyslog("info", "form_elements(): id: $id");
+  wsyslog("info", "form_elements_json(): id: $id");
 
   foreach $key (keys %{$form{$id}})
   {
     $elements{"$key"} = $form{$id}{$key};
   }
 
-  $out = encode_json(%elements);
+  $out = encode_json(\%elements);
   return $out;
 }
 
@@ -1325,6 +1359,36 @@ sub form_values()
 
   $out .= "};";
 
+  return $out;
+}
+
+################################################################################
+sub form_values_json()
+################################################################################
+{
+  my $sn = shift;
+  my $out = "";
+  my %values;
+
+  my $query = "select variable,value from input where sn = ?";
+
+  my $sth = $dbh->prepare($query) or do {
+    wsyslog("info", "form_values_json(): prepare $query, error:".$DBI::errstr);
+    return "{}";
+  };
+
+  $sth->execute($sn) or do {
+    wsyslog("info", "form_values_json(): execute $query, error:".$DBI::errstr);
+    return "{}";
+  };
+
+  while(my ($var, $val) = $sth->fetchrow_array()) {
+    $values{$var} = $val;
+  }
+
+  $sth->finish();
+
+  $out = encode_json(\%values);
   return $out;
 }
 
@@ -1381,7 +1445,7 @@ sub form_output()
   my $elements = &form_elements_json($serial);
   wsyslog("debug","form_template(): elements: $elements");
 
-  my $values = &form_values($serial);
+  my $values = &form_values_json($serial);
   wsyslog("debug","form_template(): values: $values");
 
   $out = "[" . $elements . "," . $values . "]";
