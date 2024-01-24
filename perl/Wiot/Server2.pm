@@ -680,7 +680,6 @@ sub list_devices
 
   $query = "select * from devices";
 
-#  $res = $dbh->selectall_arrayref($query) or do {
   $res = $dbh->selectall_hashref($query,"name") or do {
     wsyslog("info", "list_sensors dberror " . $DBI::errstr);
     $error_result = 500;
@@ -692,6 +691,24 @@ sub list_devices
     $out = encode_json(\%$res);
   } else {
     #html
+    foreach my $row (keys %$res) {
+      $out .= "$row";
+      $out .= Dumper(\$res);
+
+      $out .= "<table border=1>\n";
+      foreach my $item (keys %{$res->{$row}}) {
+        $out .= "<tr>\n";
+        $out .= "<td>\n";
+        $out .= "$item";
+        $out .= "</td><td>\n";
+        $out .= $res->{$row}{$item};
+        $out .= "</td>\n";
+        $out .= "</tr>\n";
+
+      }
+      $out .= "</table>\n";
+
+    }
   }
   return $out;
 }
@@ -1178,37 +1195,14 @@ sub error_400()
 sub error_401()
 ################################################################################
 {
-  $r->content_type('text/html; charset=utf-8');
-
-  $r->print('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>401 Unauthorized</title>
-</head><body>
-<h1>You can not do this</h1>
-<p>to me:(</p>
-<hr>
-<address>' . $hostname . '/2 Ulramegasuperdupercool/0.0.1 Server at api.openstreetmap.social Port 80</address>
-</body></html>
-');
+  &error_template("401 Unauthorized", "You can not do this", "to me:(");
 }
 
 ################################################################################
 sub error_404()
 ################################################################################
 {
-  $r->content_type('text/html; charset=utf-8');
-
-  $r->print('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>404 Not Found</title>
-</head><body>
-<h1>Not Found</h1>
-<p>We know nothing about this, except this message</p>
-<p><i>'.$error_message.'</i><p>
-<hr>
-<address>' . $hostname . '/2 Ulramegasuperdupercool/0.0.1 Server at api.openstreetmap.social Port 80</address>
-</body></html>
-');
+  &error_template("404 Not Found", "Not Found", "We don\'t know nothing about this <br>" . $error_message);
 }
 
 ################################################################################
@@ -1222,7 +1216,7 @@ sub error_412()
 sub error_500()
 ################################################################################
 {
-  &error_template("500 Boo Boo", "BOO!", "We don\'t know nothing about this");
+  &error_template("500 Boo Boo", "BOO!", "Mistakes have been made ... <br>" . $error_message);
 }
 
 ################################################################################
@@ -1234,14 +1228,17 @@ sub error_template()
   $r->content_type('text/html; charset=utf-8');
 
   $r->print('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
+<html>
+<head>
 <title>' . $title . '</title>
-</head><body>
+</head>
+<body>
 <h1>' . $header. '</h1>
 <p>' . $message . '</p>
 <hr>
-<address>Wframenotwork/3 Ulramegasuperdupercool/0.0.1 Server at ' . $hostname . ' Port 80</address>
-</body></html>
+<address>Wframenotwork/3 Ulramegasuperdupercool/0.0.2 Server at ' . $hostname . ' Port 80085</address>
+</body>
+</html>
 ');
 }
 
@@ -1717,6 +1714,7 @@ sub login_ok_nextcloud()
   my $sth = $dbh->prepare($query);
   my $res = $sth->execute() or do {
     wsyslog("info", "500: oauth2 ok  " . $DBI::errstr . " $query");
+    $error_message = $DBI::errstr;
     $error_result = 500;
     return;
   };

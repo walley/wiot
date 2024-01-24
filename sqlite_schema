@@ -42,10 +42,12 @@ house numeric,
 name varchar
 );
 
-create table devices
+create table devices (
 id integer primary key AUTOINCREMENT,
-name varchar
-room integer
-type varchar
+name varchar,
+type varchar,
+image varchar,
+room integer,
+note varchar
 );
 
