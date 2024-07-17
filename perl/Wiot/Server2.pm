@@ -1417,7 +1417,7 @@ sub form_configuration()
     return;
   };
 
-  $sth->execute($sn) or do {
+  $sth->execute() or do {
     wsyslog("info", "form_configuration(): execute $query, error:".$DBI::errstr);
     return;
   };
