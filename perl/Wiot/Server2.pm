@@ -294,6 +294,11 @@ sub handler
       $out = "xts $xts : xv $xv";
       $r->print($out);
     }
+  } elsif ($api_request eq "room") {
+    if ($r->method() eq "GET") {
+      $out = &room_devices();
+      $r->print($out);
+    }
   }
 
   &login_request_handler($api_request);
@@ -1824,6 +1829,34 @@ sub login_ok_github()
 
   $r->print("</body>\n");
   $r->print("</html>\n");
+}
+
+################################################################################
+sub room_devices()
+################################################################################
+{
+  my $out ="";
+
+  if ($OUTPUT_FORMAT eq "html") {
+
+    $out = &page_header();
+    $out .= "<p>";
+    $out .= "room content";
+    $out .= "</p>";
+    $out .= &page_footer();
+
+  }
+
+  if ($OUTPUT_FORMAT eq "json") {
+  }
+
+  return $out;
+}
+
+################################################################################
+sub rooms_list()
+################################################################################
+{
 }
 
 1;
