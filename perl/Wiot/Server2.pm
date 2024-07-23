@@ -298,6 +298,12 @@ sub handler
     if ($r->method() eq "GET") {
       $out = &room_devices();
       $r->print($out);
+    } elsif ($r->method() eq "PUT") {
+      $out = "add room";
+      $r->print($out);
+    } elsif ($r->method() eq "DELETE") {
+      $out = "delete room";
+      $r->print($out);
     }
   }
 
