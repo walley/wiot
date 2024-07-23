@@ -696,9 +696,11 @@ sub list_devices
     $out = encode_json(\%$res);
   } else {
     #html
+    $out .= &page_header();
+
     foreach my $row (keys %$res) {
-      $out .= "$row";
-      $out .= Dumper(\$res);
+      $out .= "<h2>$row</h2>";
+      $out .= "<pre>" . Dumper(\$res) . "</pre><br>\n";
 
       $out .= "<table border=1>\n";
       foreach my $item (keys %{$res->{$row}}) {
@@ -714,6 +716,7 @@ sub list_devices
       $out .= "</table>\n";
 
     }
+    $out .= &page_footer();
   }
   return $out;
 }
@@ -1837,12 +1840,24 @@ sub room_devices()
 {
   my $out ="";
 
+  $query = "select * from room";
+
+  $res = $dbh->selectall_hashref($query,"name") or do {
+    wsyslog("info", "room_devices dberror " . $DBI::errstr);
+    $error_result = 500;
+    return 500;
+  };
+
+
   if ($OUTPUT_FORMAT eq "html") {
 
     $out = &page_header();
     $out .= "<p>";
     $out .= "room content";
     $out .= "</p>";
+
+    $out .= "<pre>" . Dumper(\$res) . "</pre><br>\n";
+
     $out .= &page_footer();
 
   }
