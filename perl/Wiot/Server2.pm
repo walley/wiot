@@ -294,6 +294,11 @@ sub handler
       $out = "xts $xts : xv $xv";
       $r->print($out);
     }
+  } elsif ($api_request eq "rooms") {
+    if ($r->method() eq "GET") {
+      $out = &rooms_list();
+      $r->print($out);
+    }
   } elsif ($api_request eq "room") {
     if ($r->method() eq "GET") {
       $out = &room_devices();
@@ -1846,7 +1851,9 @@ sub room_devices()
 {
   my $out ="";
 
-  $query = "select * from room";
+  wsyslog("debug","rooms_devices():");
+
+  $query = "select * from devices";
 
   $res = $dbh->selectall_hashref($query,"name") or do {
     wsyslog("info", "room_devices dberror " . $DBI::errstr);
@@ -1856,7 +1863,6 @@ sub room_devices()
 
 
   if ($OUTPUT_FORMAT eq "html") {
-
     $out = &page_header();
     $out .= "<p>";
     $out .= "room content";
@@ -1865,10 +1871,10 @@ sub room_devices()
     $out .= "<pre>" . Dumper(\$res) . "</pre><br>\n";
 
     $out .= &page_footer();
-
   }
 
   if ($OUTPUT_FORMAT eq "json") {
+    $out = encode_json(\%$res);
   }
 
   return $out;
@@ -1878,6 +1884,28 @@ sub room_devices()
 sub rooms_list()
 ################################################################################
 {
+  wsyslog("debug","rooms_list():");
+  $query = "select * from room";
+
+  $res = $dbh->selectall_hashref($query,"name") or do {
+    wsyslog("info", "room_devices dberror " . $DBI::errstr);
+    $error_result = 500;
+    return 500;
+  };
+
+  if ($OUTPUT_FORMAT eq "html") {
+
+    $out = &page_header();
+    $out .= "<p>";
+    $out .= "List of rooms in hose number (TBD)";
+    $out .= "</p>";
+    $out .= "<pre>" . Dumper(\$res) . "</pre><br>\n";
+
+    $out .= &page_footer();
+  } elsif ($OUTPUT_FORMAT eq "json") {
+    $out = encode_json(\%$res);
+  }
+
 }
 
 1;
