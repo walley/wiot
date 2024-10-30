@@ -299,6 +299,11 @@ sub handler
       $out = &rooms_list();
       $r->print($out);
     }
+  } elsif ($api_request eq "house") {
+    if ($r->method() eq "GET") {
+      $out = &house_content();
+      $r->print($out);
+    }
   } elsif ($api_request eq "room") {
     if ($r->method() eq "GET") {
       $out = &room_devices();
@@ -1853,9 +1858,9 @@ sub room_devices()
 
   wsyslog("debug","rooms_devices():");
 
-  $query = "select * from devices";
+  my $query = "select * from devices";
 
-  $res = $dbh->selectall_hashref($query,"name") or do {
+  my $res = $dbh->selectall_hashref($query,"name") or do {
     wsyslog("info", "room_devices dberror " . $DBI::errstr);
     $error_result = 500;
     return 500;
@@ -1885,9 +1890,10 @@ sub rooms_list()
 ################################################################################
 {
   wsyslog("debug","rooms_list():");
-  $query = "select * from room";
+  my $query = "select * from room";
+  my $out ="";
 
-  $res = $dbh->selectall_hashref($query,"name") or do {
+  my $res = $dbh->selectall_hashref($query,"name") or do {
     wsyslog("info", "room_devices dberror " . $DBI::errstr);
     $error_result = 500;
     return 500;
@@ -1906,6 +1912,76 @@ sub rooms_list()
     $out = encode_json(\%$res);
   }
 
+}
+
+sub sort_hash_by_value {
+    my (%hash) = @_;
+    my @sorted_keys = sort { $hash{$a} <=> $hash{$b} } keys %hash;
+    my %sorted_hash;
+    @sorted_hash{@sorted_keys} = @hash{@sorted_keys};
+    return %sorted_hash;
+}
+
+################################################################################
+sub house_content()
+################################################################################
+{
+  #todo house
+  my $house = 0;
+
+  wsyslog("debug","house_content():");
+  my $out="";
+  my %house;
+
+  $house{star}={'house' => 0};
+
+#  my $query = "select room.name as roomname,devices.* from room,devices where room.id=devices.room and house=$house";
+#  my $query = "select room.name as roomname,* from room left join devices on room.id=devices.room and house=?";
+#  $res = $dbh->selectall_hashref($query,"name") or do {
+#  $res = $dbh->selectall_hashref($query,"name",undef,0) or do {
+#    wsyslog("info", "room_devices dberror " . $DBI::errstr);
+#   $error_result = 500;
+#    return 500;
+#  };
+
+  my $query = "select room.name as roomname,room.id as roomid,devices.* from room left join devices on room.id=devices.room and house=?";
+
+  wsyslog("debug","house_content(): $query");
+
+  my $sth = $dbh->prepare($query) or do {
+    wsyslog("debug", "house_content(): prepare $query, error:".$DBI::errstr);
+    return "error1";
+  };
+
+  $sth->execute(0) or do {
+    wsyslog("debug", "house_content(): execute $query, error:".$DBI::errstr);
+    return "error2";
+  };
+
+  while (my $res = $sth->fetchrow_hashref()) {
+    my $name;
+    if (defined $res->{name} and $res->{name} ne '') {
+      $name = $res->{name};
+    } else {
+      $name = "empty";
+    }
+    $house{$res->{roomname}}{$name}=$res;
+  }
+  $sth->finish();
+
+
+  if ($OUTPUT_FORMAT eq "html") {
+    $out = &page_header();
+    $out .= "<p>";
+    $out .= "List of rooms in house number (TBD)";
+    $out .= "</p>";
+    $out .= "<pre>" . Dumper(\%house) . "</pre><br>\n";
+
+
+    $out .= &page_footer();
+  } elsif ($OUTPUT_FORMAT eq "json") {
+    $out = encode_json \%house;
+  }
 }
 
 1;
