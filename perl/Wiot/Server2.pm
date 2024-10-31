@@ -1019,7 +1019,12 @@ sub output_html
 sub page_header()
 ################################################################################
 {
-  my ($scripts, $links) = @_;
+  my ($scripts, $links, $title) = @_;
+
+  if (!defined $title) {
+    $title = "Wiot"
+  }
+
   my $out = '
 <!doctype html>
 <html lang="en">
@@ -1028,8 +1033,9 @@ sub page_header()
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="pragma" content="no-cache">
-  <title>wiot</title>
 ';
+
+  $out .= "  <title>$title</title>\n";
 
   foreach $i (@$links) {
     $out .= "  <link rel='stylesheet' type='text/css' href='";
@@ -1971,7 +1977,7 @@ sub house_content()
 
 
   if ($OUTPUT_FORMAT eq "html") {
-    $out = &page_header();
+    $out = &page_header("", "", "Wiot API - house call");
     $out .= "<p>";
     $out .= "List of rooms in house number (TBD)";
     $out .= "</p>";
