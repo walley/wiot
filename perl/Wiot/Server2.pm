@@ -1913,9 +1913,15 @@ sub rooms_list()
     $out .= "</h1>";
     $out .= "<pre>" . Dumper(\$res) . "</pre><br>\n";
 
+    my $value;
     foreach my $key (keys %$res) {
-      my $value  = $res{$key}{'id'};
-      $out .= "* " . $key . "=" . $value . "<br>";
+#      $out .= "* " . $key . "=" . $value . "<br>";
+
+      my %x = %$res{$key};
+      foreach my $kkey (keys %x) {
+        my $kvalue  = $x{$kkey}{id};
+        $out .= "* " . $kkey . "=" . $kvalue . "<br>";
+      }
     }
 
     $out .= &page_footer();
