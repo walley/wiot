@@ -1908,10 +1908,15 @@ sub rooms_list()
   if ($OUTPUT_FORMAT eq "html") {
 
     $out = &page_header();
-    $out .= "<p>";
-    $out .= "List of rooms in hose number (TBD)";
-    $out .= "</p>";
+    $out .= "<h1>";
+    $out .= "List of rooms in house number (TBD)";
+    $out .= "</h1>";
     $out .= "<pre>" . Dumper(\$res) . "</pre><br>\n";
+
+    foreach my $key (keys %$res) {
+      my $value  = $res{$key}{'id'};
+      $out .= "* " . $key . "=" . $value . "<br>";
+    }
 
     $out .= &page_footer();
   } elsif ($OUTPUT_FORMAT eq "json") {
@@ -1920,7 +1925,9 @@ sub rooms_list()
 
 }
 
+################################################################################
 sub sort_hash_by_value {
+################################################################################
     my (%hash) = @_;
     my @sorted_keys = sort { $hash{$a} <=> $hash{$b} } keys %hash;
     my %sorted_hash;
@@ -1938,6 +1945,8 @@ sub house_content()
   wsyslog("debug","house_content():");
   my $out="";
   my %house;
+  my $h_key;
+  my $h_value;
 
   $house{star}={'house' => 0};
 
@@ -1978,11 +1987,31 @@ sub house_content()
 
   if ($OUTPUT_FORMAT eq "html") {
     $out = &page_header("", "", "Wiot API - house call");
-    $out .= "<p>";
-    $out .= "List of rooms in house number (TBD)";
-    $out .= "</p>";
-    $out .= "<pre>" . Dumper(\%house) . "</pre><br>\n";
+    $out .= "<h1>";
+    $out .= "List of rooms in house number $house";
+    $out .= "</h1>";
+    #$out .= "<pre>" . Dumper(\%house) . "</pre><br>\n";
 
+    my $r_key;
+    my $r_value;
+    my $device_key;
+    my $device_value;
+
+    foreach $h_key (keys %house) {
+      $h_value  = $house{$h_key};
+      my %room_hash = %$h_value;
+      $out .= "<h2>" .$h_key . "</h3>";
+
+      foreach $r_key (keys %room_hash) {
+        $r_value  = $room_hash{$r_key};
+        $out .= "<h3>" . $r_key . "</h3>";
+
+        foreach $d_key (keys %$r_value) {
+          $d_value  = $room_hash{$r_key}{$d_key};
+          $out .= "" . $d_key . "=" . $d_value . "<br>";
+        }
+      }
+    }
 
     $out .= &page_footer();
   } elsif ($OUTPUT_FORMAT eq "json") {
