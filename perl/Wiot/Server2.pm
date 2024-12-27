@@ -1913,18 +1913,19 @@ sub rooms_list()
     $out = &page_header();
     $out .= "<h1>";
     $out .= "List of rooms in house number $house";
-    $out .= "</h1>";
+    $out .= "</h1>\n";
 
     my $value;
     foreach my $room (sort keys %$res) {
       $out .= "<h2>$room</h2>\n";
 
       my %r = %$res{$room};
+
       foreach my $rkey (keys %r) {
         my $rvalue  = $r{$rkey};
         $out .= "<ul>\n";
-        foreach my $i (keys %$rvalue) {
-          $out .= "<li> " . $i . "=" . $rvalue->{$i} . "<br>";
+        foreach my $i (sort keys %$rvalue) {
+          $out .= "<li> " . $i . "=" . $rvalue->{$i} . "\n";
         }
         $out .= "</ul>\n";
       }
