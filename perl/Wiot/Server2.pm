@@ -1896,7 +1896,10 @@ sub rooms_list()
 ################################################################################
 {
   wsyslog("debug","rooms_list():");
-  my $query = "select * from room";
+
+  my $house = 0;
+
+  my $query = "select * from room where house=$house";
   my $out ="";
 
   my $res = $dbh->selectall_hashref($query,"name") or do {
@@ -1909,20 +1912,25 @@ sub rooms_list()
 
     $out = &page_header();
     $out .= "<h1>";
-    $out .= "List of rooms in house number (TBD)";
+    $out .= "List of rooms in house number $house";
     $out .= "</h1>";
-    $out .= "<pre>" . Dumper(\$res) . "</pre><br>\n";
 
     my $value;
-    foreach my $key (keys %$res) {
-#      $out .= "* " . $key . "=" . $value . "<br>";
+    foreach my $room (sort keys %$res) {
+      $out .= "<h2>$room</h2>\n";
 
-      my %x = %$res{$key};
-      foreach my $kkey (keys %x) {
-        my $kvalue  = $x{$kkey}{id};
-        $out .= "* " . $kkey . "=" . $kvalue . "<br>";
+      my %r = %$res{$room};
+      foreach my $rkey (keys %r) {
+        my $rvalue  = $r{$rkey};
+        $out .= "<ul>\n";
+        foreach my $i (keys %$rvalue) {
+          $out .= "<li> " . $i . "=" . $rvalue->{$i} . "<br>";
+        }
+        $out .= "</ul>\n";
       }
     }
+
+    $out .= "<pre>" . Dumper(\$res) . "</pre><br>\n";
 
     $out .= &page_footer();
   } elsif ($OUTPUT_FORMAT eq "json") {
