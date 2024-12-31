@@ -309,6 +309,7 @@ sub handler
       $out = &room_devices();
       $r->print($out);
     } elsif ($r->method() eq "PUT") {
+      #room_add();
       $out = "add room";
       $r->print($out);
     } elsif ($r->method() eq "DELETE") {
