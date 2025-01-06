@@ -4,6 +4,7 @@
  <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <title>Wiot login page</title>
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
@@ -15,7 +16,7 @@
 .container {
   position: relative;
   border-radius: 5px;
-  background-color: #f2f2f2;
+  background-color: light-dark(#f2f2f2, black);
   padding: 20px 0 30px 0;
 }
 
@@ -30,6 +31,14 @@
   font-size: 17px;
   line-height: 20px;
   text-decoration: none; /* remove underline from anchors */
+}
+
+h2 {
+  color: light-dark(black, white);
+}
+
+p {
+  color: light-dark(grey, yellow);
 }
 
 input:hover,
