@@ -5,15 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WIOT</title>
     <link rel="stylesheet" href="style.css">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="dark light">
+
 </head>
 <body>
-    <div class="container">
-        <h1>First Amendment of the United States Constitution</h1>
-        <p>Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.</p>
-        <button id="modeToggle">Switch to Dark Mode</button>
-    </div>
-    <script src="script.js"></script>
+
+ <section class="scheme-switcher" aria-label="Color scheme switcher">
+    <button class="scheme-switcher__button" aria-pressed="false" value="light">
+      Light
+    </button>
+    <button class="scheme-switcher__button" aria-pressed="true" value="dark light">
+      Auto
+    </button>
+    <button class="scheme-switcher__button" aria-pressed="false" value="dark">
+      Dark
+    </button>
+  </section>
+
+  <script src="script.js"></script>
 
 <h1>Welcome to WIOT</h1>
 
