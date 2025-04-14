@@ -386,6 +386,7 @@ sub error_template()
   $r->print('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head>
 <title>' . $title . '</title>
+<meta name="color-scheme" content="dark light">
 </head><body>
 <h1>YAY!</h1>
 <p>' . $message . '</p>
