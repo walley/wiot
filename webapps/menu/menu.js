@@ -20,7 +20,7 @@ function init_menu()
     }
   );
 
-  $("#menu").toggle();
+  $("#menu").hide();
   get_username();
 }
 
@@ -41,6 +41,7 @@ function get_username()
   })
   .fail(function() {
     alert("username error");
+    $("#username").html("Error fetching username");
   })
   .always(function() {
   });
