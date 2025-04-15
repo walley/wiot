@@ -98,10 +98,24 @@ background-color:#ffc5b0;
   display: none;
 }
 
-/* bottom container */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensures the container takes the full height of the viewport */
+}
+
 .bottom-container {
-  text-align: center;
+  position: fixed; /* Fixes the container to the bottom of the viewport */
+  bottom: 0;
+  width: 100%; /* Ensures it spans the full width of the page */
+  height: 60px; /* Adjust the height to the desired size */
   background-color: #666;
+  text-align: center;
   border-radius: 0px 0px 4px 4px;
 }
 
