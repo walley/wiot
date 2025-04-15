@@ -1,0 +1,62 @@
+body {
+    font-family: serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    padding: 20px;
+    text-align: center;
+}
+
+p {
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Dark Mode */
+body.dark-mode {
+    background-color: black;
+    color: white;
+}
+
+body.dark-mode button {
+    background-color: #303030;
+    color: #e0e0e0;
+}
+
+body.dark-mode button:hover {
+    background-color: #424242;
+}
+
+
+body.dark-mode a {
+    color: #4078c0;
+}
+
+body.dark-mode a:hover {
+    color: #4c86c6;
+    color: blue;
+}
+
+body.dark-mode a:visited {
+    ccolor: #7f5ab6;
+    color: blue;
+}
+
+body.dark-mode a:active {
+    color: #FF1493;
+}
