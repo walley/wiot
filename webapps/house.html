@@ -81,10 +81,36 @@
         .device-list li:hover {
             background-color: #f9f9f9;
         }
+
+        /* CSS for the header with edit icon */
+        .header-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-container h1 {
+            margin-right: 10px;
+        }
+
+        .edit-icon {
+            color: #007bff;
+            font-size: 20px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .edit-icon:hover {
+            color: #0056b3;
+        }
     </style>
 </head>
 <body>
-    <h1>IoT Room Selector</h1>
+    <div class="header-container">
+        <h1>IoT Room Selector</h1>
+        <a href="https://wiot.cz/webapps/rooms.html" class="edit-icon" title="Edit Rooms">
+            <i class="fas fa-edit"></i>
+        </a>
+    </div>
     <div id="roomSelector" class="room-selector"></div>
     <div id="deviceListContainer">
         <h2 id="selectedRoom"></h2>
@@ -106,7 +132,7 @@
             "Library"
         ];
 
-        // Example IoT devices for each room (room name as key, array of devices as value)
+        // Example IoT devices for each room
         const iotDevices = {
             "Living Room": [
                 { name: "Ceiling Light", type: "lightbulb", icon: "fa-lightbulb" },
@@ -158,13 +184,8 @@
                 button.className = "room-button";
                 button.textContent = room;
                 button.addEventListener("click", () => {
-                    // Update the selected room header
                     selectedRoomHeader.textContent = `Devices in ${room}`;
-
-                    // Clear previous devices
                     deviceList.innerHTML = "";
-
-                    // Populate the device list for the selected room
                     const devices = iotDevices[room] || [];
                     if (devices.length === 0) {
                         const li = document.createElement("li");
