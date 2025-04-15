@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Room Selector</title>
+    <!-- Include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* CSS for the room selector */
+        .room-selector {
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 0;
+            background-color: #f0f0f0;
+            margin: 10px 0;
+            user-select: none;
+            cursor: grab;
+        }
+
+        .room-selector.grabbing {
+            cursor: grabbing;
+        }
+
+        .room-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .room-button:hover {
+            background-color: #0056b3;
+        }
+
+        .room-button:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .room-selector::-webkit-scrollbar {
+            display: none;
+        }
+
+        .room-selector {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* CSS for the device list */
+        .device-list {
+            margin: 20px 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .device-list li {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .device-list i {
+            margin-right: 10px;
+            color: #007bff;
+        }
+
+        .device-list li:hover {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>IoT Room Selector</h1>
+    <div id="roomSelector" class="room-selector"></div>
+    <div id="deviceListContainer">
+        <h2 id="selectedRoom"></h2>
+        <ul id="deviceList" class="device-list"></ul>
+    </div>
+
+    <script>
+        // Array of rooms
+        const rooms = [
+            "Living Room",
+            "Kitchen",
+            "Bedroom",
+            "Bathroom",
+            "Office",
+            "Garage",
+            "Basement",
+            "Guest Room",
+            "Dining Room",
+            "Library"
+        ];
+
+        // Example IoT devices for each room (room name as key, array of devices as value)
+        const iotDevices = {
+            "Living Room": [
+                { name: "Ceiling Light", type: "lightbulb", icon: "fa-lightbulb" },
+                { name: "Smart Switch", type: "switch", icon: "fa-toggle-on" },
+                { name: "TV Power", type: "switch", icon: "fa-toggle-on" }
+            ],
+            "Kitchen": [
+                { name: "Fridge Light", type: "lightbulb", icon: "fa-lightbulb" },
+                { name: "Oven Switch", type: "switch", icon: "fa-toggle-on" }
+            ],
+            "Bedroom": [
+                { name: "Bedside Lamp", type: "lightbulb", icon: "fa-lightbulb" },
+                { name: "Fan Switch", type: "switch", icon: "fa-toggle-on" }
+            ],
+            "Bathroom": [
+                { name: "Mirror Light", type: "lightbulb", icon: "fa-lightbulb" }
+            ],
+            "Office": [
+                { name: "Desk Lamp", type: "lightbulb", icon: "fa-lightbulb" },
+                { name: "Monitor Switch", type: "switch", icon: "fa-toggle-on" }
+            ],
+            "Garage": [
+                { name: "Garage Door Switch", type: "switch", icon: "fa-toggle-on" }
+            ],
+            "Basement": [
+                { name: "Basement Light", type: "lightbulb", icon: "fa-lightbulb" }
+            ],
+            "Guest Room": [
+                { name: "Guest Lamp", type: "lightbulb", icon: "fa-lightbulb" }
+            ],
+            "Dining Room": [
+                { name: "Chandelier", type: "lightbulb", icon: "fa-lightbulb" },
+                { name: "Dimmer Switch", type: "switch", icon: "fa-toggle-on" }
+            ],
+            "Library": [
+                { name: "Reading Light", type: "lightbulb", icon: "fa-lightbulb" }
+            ]
+        };
+
+        // Function to create and populate the room selector
+        function createRoomSelector() {
+            const roomSelector = document.getElementById("roomSelector");
+            const selectedRoomHeader = document.getElementById("selectedRoom");
+            const deviceList = document.getElementById("deviceList");
+
+            // Loop through the rooms array and create a button for each room
+            rooms.forEach(room => {
+                const button = document.createElement("button");
+                button.className = "room-button";
+                button.textContent = room;
+                button.addEventListener("click", () => {
+                    // Update the selected room header
+                    selectedRoomHeader.textContent = `Devices in ${room}`;
+
+                    // Clear previous devices
+                    deviceList.innerHTML = "";
+
+                    // Populate the device list for the selected room
+                    const devices = iotDevices[room] || [];
+                    if (devices.length === 0) {
+                        const li = document.createElement("li");
+                        li.textContent = "No devices found.";
+                        deviceList.appendChild(li);
+                    } else {
+                        devices.forEach(device => {
+                            const li = document.createElement("li");
+                            const icon = document.createElement("i");
+                            icon.className = `fas ${device.icon}`;
+                            li.appendChild(icon);
+                            li.appendChild(document.createTextNode(device.name));
+                            deviceList.appendChild(li);
+                        });
+                    }
+                });
+                roomSelector.appendChild(button);
+            });
+
+            // Add mouse gesture scrolling
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            roomSelector.addEventListener("mousedown", (e) => {
+                isDown = true;
+                roomSelector.classList.add("grabbing");
+                startX = e.pageX - roomSelector.offsetLeft;
+                scrollLeft = roomSelector.scrollLeft;
+            });
+
+            roomSelector.addEventListener("mouseleave", () => {
+                isDown = false;
+                roomSelector.classList.remove("grabbing");
+            });
+
+            roomSelector.addEventListener("mouseup", () => {
+                isDown = false;
+                roomSelector.classList.remove("grabbing");
+            });
+
+            roomSelector.addEventListener("mousemove", (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - roomSelector.offsetLeft;
+                const walk = (x - startX) * 2;
+                roomSelector.scrollLeft = scrollLeft - walk;
+            });
+
+            // Set default message for device list
+            selectedRoomHeader.textContent = "Select a room to view devices";
+        }
+
+        // Call the function to initialize the room selector when the page loads
+        window.onload = createRoomSelector;
+    </script>
+</body>
+</html>
