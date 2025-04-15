@@ -6,8 +6,15 @@
     <title>IoT Room Selector</title>
     <!-- Include Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Include jQuery UI CSS for the menu -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+    <!-- Include jQuery and jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"></script>
+    <!-- Include menu.js -->
+    <script src="menu/menu.js"></script>
     <style>
-        /* CSS for the room selector */
+        /* Existing styles for the room selector */
         .room-selector {
             width: 100%;
             overflow-x: auto;
@@ -45,7 +52,6 @@
             box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }
 
-        /* Hide scrollbar but keep functionality */
         .room-selector::-webkit-scrollbar {
             display: none;
         }
@@ -55,7 +61,6 @@
             scrollbar-width: none;
         }
 
-        /* CSS for the device list */
         .device-list {
             margin: 20px 0;
             padding: 0;
@@ -82,7 +87,6 @@
             background-color: #f9f9f9;
         }
 
-        /* CSS for the header with edit icon */
         .header-container {
             display: flex;
             align-items: center;
@@ -102,9 +106,77 @@
         .edit-icon:hover {
             color: #0056b3;
         }
+
+        /* New styles for the menu (copied from rooms.css) */
+        .topcorner {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+
+        .topcornermenu {
+            position: absolute;
+            top: 30px;
+            right: 0;
+        }
+
+        .ui-menu {
+            width: 200px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .ui-menu li {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .ui-menu li:hover {
+            background-color: #e0e0e0;
+        }
+
+        .ui-menu-divider {
+            height: 1px;
+            background-color: #ddd;
+            margin: 5px 0;
+        }
+
+        .navmenu {
+            border-style: double;
+            display: inline-block;
+            height: 24px;
+            cursor: pointer;
+            border-color: #0056b3;
+        }
+
+        .initially_hidden {
+            display: none;
+        }
+
+        /* Responsive design for the menu */
+        @media (max-width: 600px) {
+            .topcornermenu, .ui-menu {
+                width: 150px;
+                right: 10px;
+            }
+        }
     </style>
 </head>
-<body>
+<body onload="init_menu()">
+    <!-- Add the menu -->
+    <div class="topcorner">
+        <div id="navmenu" class="navmenu" role="button" aria-label="Toggle navigation menu" aria-expanded="false" tabindex="0">
+            <img src="bora.png" width="24px" height="24px" alt="Logo">
+            <img src="navmenu.png" width="20px" height="20px" alt="Menu">
+        </div>
+    </div>
+
+    <ul id="menu" class="topcornermenu initially_hidden">
+        <!-- Menu items will be populated dynamically from menu.json -->
+    </ul>
+
+    <!-- Existing room selector content -->
     <div class="header-container">
         <h1>IoT Room Selector</h1>
         <a href="https://wiot.cz/webapps/rooms.html" class="edit-icon" title="Edit Rooms">
@@ -118,7 +190,7 @@
     </div>
 
     <script>
-        // Array of rooms
+        // Array of rooms (example data)
         const rooms = [
             "Living Room",
             "Kitchen",
@@ -178,7 +250,6 @@
             const selectedRoomHeader = document.getElementById("selectedRoom");
             const deviceList = document.getElementById("deviceList");
 
-            // Loop through the rooms array and create a button for each room
             rooms.forEach(room => {
                 const button = document.createElement("button");
                 button.className = "room-button";
@@ -235,12 +306,13 @@
                 roomSelector.scrollLeft = scrollLeft - walk;
             });
 
-            // Set default message for device list
             selectedRoomHeader.textContent = "Select a room to view devices";
         }
 
-        // Call the function to initialize the room selector when the page loads
-        window.onload = createRoomSelector;
+        window.onload = function() {
+            init_menu(); // Already called via onload attribute, but included here for clarity
+            createRoomSelector();
+        };
     </script>
 </body>
 </html>
