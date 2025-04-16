@@ -107,17 +107,19 @@
             color: #0056b3;
         }
 
-        /* New styles for the menu (copied from rooms.css) */
+        /* Menu styles */
         .topcorner {
             position: absolute;
             top: 0px;
             right: 0px;
+            z-index: 1000;
         }
 
         .topcornermenu {
             position: absolute;
             top: 30px;
             right: 0;
+            z-index: 1000;
         }
 
         .ui-menu {
@@ -154,7 +156,6 @@
             display: none;
         }
 
-        /* Responsive design for the menu */
         @media (max-width: 600px) {
             .topcornermenu, .ui-menu {
                 width: 150px;
@@ -164,7 +165,7 @@
     </style>
 </head>
 <body onload="init_menu()">
-    <!-- Add the menu -->
+    <!-- Navigation Menu -->
     <div class="topcorner">
         <div id="navmenu" class="navmenu" role="button" aria-label="Toggle navigation menu" aria-expanded="false" tabindex="0">
             <img src="bora.png" width="24px" height="24px" alt="Logo">
@@ -176,80 +177,117 @@
         <!-- Menu items will be populated dynamically from menu.json -->
     </ul>
 
-    <!-- Existing room selector content -->
+    <!-- Room Selector Content -->
     <div class="header-container">
         <h1>IoT Room Selector</h1>
         <a href="https://wiot.cz/webapps/rooms.html" class="edit-icon" title="Edit Rooms">
             <i class="fas fa-edit"></i>
         </a>
     </div>
+    <div id="locationInfo"></div>
     <div id="roomSelector" class="room-selector"></div>
     <div id="deviceListContainer">
         <h2 id="selectedRoom"></h2>
         <ul id="deviceList" class="device-list"></ul>
     </div>
 
-    <script>
-        // Array of rooms (example data)
-        const rooms = [
-            "Living Room",
-            "Kitchen",
-            "Bedroom",
-            "Bathroom",
-            "Office",
-            "Garage",
-            "Basement",
-            "Guest Room",
-            "Dining Room",
-            "Library"
-        ];
+<script>
+    // Function to select houseId (placeholder for now)
+    function selectHouseId(selectedLocation) {
+        // Placeholder: Always returns 0 for now
+        // TODO: Implement proper houseId selection
+        // 1. In location.html, after selecting a location, send the location to the backend (e.g., POST to https://wiot.cz/wiot/v1/houses)
+        // 2. Backend should return a unique houseId for the location
+        // 3. Store the houseId in localStorage alongside the location data (e.g., locationData.houseId = "house_123")
+        // 4. In this function, retrieve the houseId from localStorage (e.g., selectedLocation.houseId)
+        // Example future implementation:
+        // const houseId = selectedLocation.houseId || "0"; // Fallback to "0" if not found
+        // return houseId;
+        return "0";
+    }
 
-        // Example IoT devices for each room
-        const iotDevices = {
-            "Living Room": [
-                { name: "Ceiling Light", type: "lightbulb", icon: "fa-lightbulb" },
-                { name: "Smart Switch", type: "switch", icon: "fa-toggle-on" },
-                { name: "TV Power", type: "switch", icon: "fa-toggle-on" }
-            ],
-            "Kitchen": [
-                { name: "Fridge Light", type: "lightbulb", icon: "fa-lightbulb" },
-                { name: "Oven Switch", type: "switch", icon: "fa-toggle-on" }
-            ],
-            "Bedroom": [
-                { name: "Bedside Lamp", type: "lightbulb", icon: "fa-lightbulb" },
-                { name: "Fan Switch", type: "switch", icon: "fa-toggle-on" }
-            ],
-            "Bathroom": [
-                { name: "Mirror Light", type: "lightbulb", icon: "fa-lightbulb" }
-            ],
-            "Office": [
-                { name: "Desk Lamp", type: "lightbulb", icon: "fa-lightbulb" },
-                { name: "Monitor Switch", type: "switch", icon: "fa-toggle-on" }
-            ],
-            "Garage": [
-                { name: "Garage Door Switch", type: "switch", icon: "fa-toggle-on" }
-            ],
-            "Basement": [
-                { name: "Basement Light", type: "lightbulb", icon: "fa-lightbulb" }
-            ],
-            "Guest Room": [
-                { name: "Guest Lamp", type: "lightbulb", icon: "fa-lightbulb" }
-            ],
-            "Dining Room": [
-                { name: "Chandelier", type: "lightbulb", icon: "fa-lightbulb" },
-                { name: "Dimmer Switch", type: "switch", icon: "fa-toggle-on" }
-            ],
-            "Library": [
-                { name: "Reading Light", type: "lightbulb", icon: "fa-lightbulb" }
-            ]
-        };
+    // Function to fetch rooms (adapted from refresh_list)
+    function refresh_list(houseId, callback) {
+        $.getJSON(`https://wiot.cz/wiot/v1/rooms?output=json&houseId=${houseId}`, {
+            output: "json"
+        }, function(result) {
+            // Transform the API response into the format needed for house.html
+            const rooms = [];
+            const roomIds = {}; // Store room IDs for fetching devices
 
-        // Function to create and populate the room selector
-        function createRoomSelector() {
-            const roomSelector = document.getElementById("roomSelector");
-            const selectedRoomHeader = document.getElementById("selectedRoom");
-            const deviceList = document.getElementById("deviceList");
+            // Iterate over the rooms in the response
+            $.each(result, function(key, room) {
+                // Only include rooms that belong to the specified house
+                if (room.house === parseInt(houseId)) {
+                    const roomName = room.name;
+                    rooms.push(roomName);
+                    roomIds[roomName] = room.id; // Map room name to its ID
+                }
+            });
 
+            const transformedData = {
+                rooms: rooms,
+                roomIds: roomIds
+            };
+
+            callback(null, transformedData);
+        }).fail(function(error) {
+            console.error("Failed to fetch rooms:", error);
+            callback(error, null);
+        });
+    }
+
+    // Function to fetch devices for a specific room
+    function fetchDevices(roomId, callback) {
+        $.getJSON(`https://wiot.cz/wiot/v1/room/${roomId}?output=json`, {
+            output: "json"
+        }, function(result) {
+            // Pass the raw response object directly to the callback
+            callback(null, result || {});
+        }).fail(function(error) {
+            console.error(`Failed to fetch devices for room ${roomId}:`, error);
+            callback(error, null);
+        });
+    }
+
+    // Function to create and populate the room selector
+    function createRoomSelector() {
+        const roomSelector = document.getElementById("roomSelector");
+        const selectedRoomHeader = document.getElementById("selectedRoom");
+        const deviceList = document.getElementById("deviceList");
+        const locationInfo = document.getElementById("locationInfo");
+
+        // Get the selected house location from localStorage
+        const selectedLocation = JSON.parse(localStorage.getItem("selectedLocation"));
+        if (!selectedLocation) {
+            locationInfo.innerHTML = "<p>Please select a location first. <a href='location.html'>Go to Location Selector</a></p>";
+            selectedRoomHeader.textContent = "No location selected";
+            return;
+        }
+
+        // Display the selected location
+        locationInfo.innerHTML = `<p>Selected House: ${selectedLocation.address} (Lat: ${selectedLocation.latitude.toFixed(6)}, Lon: ${selectedLocation.longitude.toFixed(6)})</p>`;
+
+        // Use the house ID (previously: houseId = Math.floor(selectedLocation.latitude).toString())
+        const houseId = selectHouseId(selectedLocation);
+
+        // Fetch rooms for the selected house
+        refresh_list(houseId, (error, data) => {
+            if (error || !data) {
+                selectedRoomHeader.textContent = "Error loading rooms";
+                locationInfo.innerHTML += "<p>Failed to load rooms. Please try again.</p>";
+                return;
+            }
+
+            const rooms = data.rooms || [];
+            const roomIds = data.roomIds || {};
+
+            if (rooms.length === 0) {
+                selectedRoomHeader.textContent = "No rooms found for this house";
+                return;
+            }
+
+            // Populate the room selector
             rooms.forEach(room => {
                 const button = document.createElement("button");
                 button.className = "room-button";
@@ -257,21 +295,48 @@
                 button.addEventListener("click", () => {
                     selectedRoomHeader.textContent = `Devices in ${room}`;
                     deviceList.innerHTML = "";
-                    const devices = iotDevices[room] || [];
-                    if (devices.length === 0) {
-                        const li = document.createElement("li");
-                        li.textContent = "No devices found.";
-                        deviceList.appendChild(li);
-                    } else {
-                        devices.forEach(device => {
-                            const li = document.createElement("li");
-                            const icon = document.createElement("i");
-                            icon.className = `fas ${device.icon}`;
-                            li.appendChild(icon);
-                            li.appendChild(document.createTextNode(device.name));
-                            deviceList.appendChild(li);
-                        });
+
+                    // Fetch devices for the selected room
+                    const roomId = roomIds[room];
+                    if (!roomId) {
+                        deviceList.innerHTML = "<li>Error: Room ID not found.</li>";
+                        return;
                     }
+
+                    fetchDevices(roomId, (error, devices) => {
+                        if (error) {
+                            deviceList.innerHTML = "<li>Failed to load devices.</li>";
+                            return;
+                        }
+
+                        // Map device types to Font Awesome icons
+                        const typeToIconMap = {
+                            "switch": "fa-toggle-on",
+                            "lightbulb": "fa-lightbulb",
+                            // Add more mappings as needed for other device types
+                            "default": "fa-cog" // Fallback icon for unknown types
+                        };
+
+                        // Check if there are any devices
+                        if (Object.keys(devices).length === 0) {
+                            const li = document.createElement("li");
+                            li.textContent = "No devices found.";
+                            deviceList.appendChild(li);
+                        } else {
+                            // Iterate over the device object directly
+                            $.each(devices, function(deviceKey, device) {
+                                const deviceType = device.type || "default";
+                                const iconClass = typeToIconMap[deviceType] || typeToIconMap["default"];
+
+                                const li = document.createElement("li");
+                                const icon = document.createElement("i");
+                                icon.className = `fas ${iconClass}`;
+                                li.appendChild(icon);
+                                li.appendChild(document.createTextNode(device.name));
+                                deviceList.appendChild(li);
+                            });
+                        }
+                    });
                 });
                 roomSelector.appendChild(button);
             });
@@ -307,12 +372,14 @@
             });
 
             selectedRoomHeader.textContent = "Select a room to view devices";
-        }
+        });
+    }
 
-        window.onload = function() {
-            init_menu(); // Already called via onload attribute, but included here for clarity
-            createRoomSelector();
-        };
-    </script>
+    window.onload = function() {
+        init_menu();
+        createRoomSelector();
+    };
+</script>
+
 </body>
 </html>

@@ -306,7 +306,7 @@ sub handler
     }
   } elsif ($api_request eq "room") {
     if ($r->method() eq "GET") {
-      $out = &room_devices();
+      $out = &room_devices($api_param);
       $r->print($out);
     } elsif ($r->method() eq "PUT") {
       #room_add();
@@ -1864,12 +1864,13 @@ sub room_devices()
 ################################################################################
 {
   my $out ="";
+  my ($param) = @_;
 
   wsyslog("debug","rooms_devices():");
 
-  my $query = "select * from devices";
+  my $query = "select * from devices where room=?";
 
-  my $res = $dbh->selectall_hashref($query,"name") or do {
+  my $res = $dbh->selectall_hashref($query,"name",{},$param) or do {
     wsyslog("info", "room_devices dberror " . $DBI::errstr);
     $error_result = 500;
     return 500;
