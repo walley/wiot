@@ -13,163 +13,187 @@
     <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"></script>
     <!-- Include menu.js -->
     <script src="menu/menu.js"></script>
-    <style>
-        /* Existing styles for the room selector */
-        .room-selector {
-            width: 100%;
-            overflow-x: auto;
-            white-space: nowrap;
-            padding: 10px 0;
-            background-color: #f0f0f0;
-            margin: 10px 0;
-            user-select: none;
-            cursor: grab;
-        }
 
-        .room-selector.grabbing {
-            cursor: grabbing;
-        }
+<style>
+    /* Existing styles for the room selector */
+    .room-selector {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding: 10px 0;
+        background-color: #f0f0f0;
+        margin: 10px 0;
+        user-select: none;
+        cursor: grab;
+    }
 
-        .room-button {
-            display: inline-block;
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            margin: 0 5px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
+    .room-selector.grabbing {
+        cursor: grabbing;
+    }
 
-        .room-button:hover {
-            background-color: #0056b3;
-        }
+    .room-button {
+        display: inline-block;
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        margin: 0 5px;
+        border-radius: 20px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
 
-        .room-button:focus {
-            outline: none;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
+    .room-button:hover {
+        background-color: #0056b3;
+    }
 
-        .room-selector::-webkit-scrollbar {
-            display: none;
-        }
+    .room-button:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
 
-        .room-selector {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+    .room-selector::-webkit-scrollbar {
+        display: none;
+    }
 
-        .device-list {
-            margin: 20px 0;
-            padding: 0;
-            list-style: none;
-        }
+    .room-selector {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
 
-        .device-list li {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
+    .device-list {
+        margin: 20px 0;
+        padding: 0;
+        list-style: none;
+    }
 
-        .device-list i {
-            margin-right: 10px;
-            color: #007bff;
-        }
+    .device-list li {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin: 5px 0;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
 
-        .device-list li:hover {
-            background-color: #f9f9f9;
-        }
+    .device-list i {
+        margin-right: 10px;
+        color: #007bff;
+    }
 
-        .header-container {
-            display: flex;
-            align-items: center;
-        }
+    .device-list li:hover {
+        background-color: #f9f9f9;
+    }
 
-        .header-container h1 {
-            margin-right: 10px;
-        }
+    .header-container {
+        display: flex;
+        align-items: center;
+    }
 
-        .edit-icon {
-            color: #007bff;
-            font-size: 20px;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
+    .header-container h1 {
+        margin-right: 10px;
+    }
 
-        .edit-icon:hover {
-            color: #0056b3;
-        }
+    .edit-icon {
+        color: #007bff;
+        font-size: 20px;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
 
-        /* Menu styles */
-        .topcorner {
-            position: absolute;
-            top: 0px;
-            right: 0px;
-            z-index: 1000;
-        }
+    .edit-icon:hover {
+        color: #0056b3;
+    }
 
-        .topcornermenu {
-            position: absolute;
-            top: 30px;
-            right: 0;
-            z-index: 1000;
-        }
+    /* Menu styles */
+    .topcorner {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        z-index: 1000;
+    }
 
-        .ui-menu {
-            width: 200px;
-            background-color: #f0f0f0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
+    .topcornermenu {
+        position: absolute;
+        top: 30px;
+        right: 0;
+        z-index: 1000;
+    }
 
-        .ui-menu li {
-            padding: 8px;
-            cursor: pointer;
-        }
+    .ui-menu {
+        width: 200px;
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
 
-        .ui-menu li:hover {
-            background-color: #e0e0e0;
-        }
+    .ui-menu li {
+        padding: 8px;
+        cursor: pointer;
+    }
 
-        .ui-menu-divider {
-            height: 1px;
-            background-color: #ddd;
-            margin: 5px 0;
-        }
+    .ui-menu li:hover {
+        background-color: #e0e0e0;
+    }
 
-        .navmenu {
-            border-style: double;
-            display: inline-block;
-            height: 24px;
-            cursor: pointer;
-            border-color: #0056b3;
-        }
+    .ui-menu-divider {
+        height: 1px;
+        background-color: #ddd;
+        margin: 5px 0;
+    }
 
-        .initially_hidden {
-            display: none;
-        }
+    .navmenu {
+        border-style: double;
+        display: inline-block;
+        height: 24px;
+        cursor: pointer;
+        border-color: #0056b3;
+    }
 
-        @media (max-width: 600px) {
-            .topcornermenu, .ui-menu {
-                width: 150px;
-                right: 10px;
-            }
+    .initially_hidden {
+        display: none;
+    }
+
+    @media (max-width: 600px) {
+        .topcornermenu, .ui-menu {
+            width: 150px;
+            right: 10px;
         }
-    </style>
+    }
+
+    /* Custom styles for the About dialog */
+    .ui-dialog {
+        z-index: 2000; /* Ensure the dialog appears above the menu */
+        border: 2px solid #007bff; /* Blue border to match your theme */
+        border-radius: 5px;
+    }
+
+    .ui-dialog .ui-dialog-titlebar {
+        background-color: #007bff; /* Blue title bar */
+        color: white; /* White text for the title */
+        border: none;
+        border-radius: 3px 3px 0 0;
+    }
+
+    .ui-dialog .ui-dialog-titlebar-close {
+        color: white; /* White close button */
+    }
+
+    .ui-dialog .ui-dialog-content {
+        background-color: #f9f9f9; /* Light background for content */
+        color: #333; /* Dark text for readability */
+    }
+</style>
 </head>
 <body onload="init_menu()">
     <!-- Navigation Menu -->
     <div class="topcorner">
         <div id="navmenu" class="navmenu" role="button" aria-label="Toggle navigation menu" aria-expanded="false" tabindex="0">
-            <img src="bora.png" width="24px" height="24px" alt="Logo">
-            <img src="navmenu.png" width="20px" height="20px" alt="Menu">
+            <img src="picz/bora.png" width="24px" height="24px" alt="Logo">
+            <img src="picz/navmenu.png" width="20px" height="20px" alt="Menu">
         </div>
     </div>
 
@@ -268,7 +292,7 @@
         // Display the selected location
         locationInfo.innerHTML = `<p>Selected House: ${selectedLocation.address} (Lat: ${selectedLocation.latitude.toFixed(6)}, Lon: ${selectedLocation.longitude.toFixed(6)})</p>`;
 
-        // Use the house ID (previously: houseId = Math.floor(selectedLocation.latitude).toString())
+        // Use the house ID
         const houseId = selectHouseId(selectedLocation);
 
         // Fetch rooms for the selected house
@@ -311,10 +335,17 @@
 
                         // Map device types to Font Awesome icons
                         const typeToIconMap = {
-                            "switch": "fa-toggle-on",
-                            "lightbulb": "fa-lightbulb",
-                            // Add more mappings as needed for other device types
-                            "default": "fa-cog" // Fallback icon for unknown types
+                            "light": "fa-lightbulb",         // Icon for lights
+                            "switch": "fa-toggle-on",        // Icon for switches
+                            "thermo": "fa-thermometer-half", // Icon for thermometers
+                            "thermostat": "fa-temperature-low", // Icon for thermostats
+                            "vacuum cleaner": "fa-robot",    // Icon for vacuum cleaners
+                            "fan": "fa-fan",                 // Icon for fans
+                            "camera": "fa-video",            // Icon for cameras
+                            "lock": "fa-lock",               // Icon for smart locks
+                            "speaker": "fa-volume-up",       // Icon for speakers
+                            "humidifier": "fa-tint",         // Icon for humidifiers
+                            "default": "fa-cog"              // Fallback icon for unknown types
                         };
 
                         // Check if there are any devices
@@ -380,6 +411,5 @@
         createRoomSelector();
     };
 </script>
-
 </body>
 </html>

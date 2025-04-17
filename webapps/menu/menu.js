@@ -49,6 +49,46 @@ function init_menu() {
         }
       });
 
+        // Add the "About" menu item dynamically
+        let aboutLi = $("<li>").appendTo("#menu");
+        let aboutA = $("<a>")
+            .attr("href", "#")
+            .text("About")
+            .attr("id", "about-menuitem")
+            .appendTo(aboutLi);
+
+        // Create the About dialog (initially hidden)
+        let aboutDialog = $("<div>")
+            .attr("id", "about-dialog")
+            .attr("title", "About This Project")
+            .html(`
+                <div style="text-align: center;">
+                    <img src="menu/project-logo.png" alt="Project Logo" style="width: 100px; height: auto; margin-bottom: 10px;">
+                    <p style="text-align: left;">
+                        This project is a multi-house IoT system designed to manage smart devices across different homes. Users can select a house location, view rooms, and control devices like lights, switches, thermometers, thermostats, vacuum cleaners, fans, cameras, locks, speakers, and humidifiers. The system provides a user-friendly interface to monitor and interact with IoT devices remotely, enhancing home automation and convenience.
+                    </p>
+                </div>
+            `)
+            .appendTo("body");
+
+        // Initialize the dialog with jQuery UI
+        aboutDialog.dialog({
+            autoOpen: false,
+            modal: false, // Non-modal so the user can interact with the page
+            draggable: true, // Make the dialog movable
+            resizable: false,
+            width: 400,
+            position: { my: "center", at: "center", of: window }
+        });
+
+        // Handle click on the "About" menu item
+        $("#about-menuitem").on("click", function(e) {
+            e.preventDefault(); // Prevent default link behavior
+            $("#about-dialog").dialog("open"); // Open the dialog
+            $("#menu").hide(); // Hide the menu
+            $("#navmenu").attr("aria-expanded", "false");
+        });
+
       // Apply initial hide
       $menu.hide();
       $("#navmenu").attr("aria-expanded", "false");
