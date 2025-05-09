@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout - IoT System</title>
+    <!-- Include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Include jQuery UI CSS for the menu -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+    <!-- Include jQuery and jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"></script>
+    <!-- Include menu.js -->
+    <script src="menu/menu.js"></script>
+    <style>
+        /* General page styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Menu styles (consistent with other pages) */
+        .topcorner {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            z-index: 1000;
+        }
+
+        .topcornermenu {
+            position: absolute;
+            top: 30px;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .ui-menu {
+            width: 200px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .ui-menu li {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .ui-menu li:hover {
+            background-color: #e0e0e0;
+        }
+
+        .ui-menu-divider {
+            height: 1px;
+            background-color: #ddd;
+            margin: 5px 0;
+        }
+
+        .navmenu {
+            border-style: double;
+            display: inline-block;
+            height: 24px;
+            cursor: pointer;
+            border-color: #0056b3;
+        }
+
+        .initially_hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .topcornermenu, .ui-menu {
+                width: 150px;
+                right: 10px;
+            }
+        }
+
+        /* Custom styles for the About dialog (consistent with other pages) */
+        .ui-dialog {
+            z-index: 2000;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+        }
+
+        .ui-dialog .ui-dialog-titlebar {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .ui-dialog .ui-dialog-titlebar-close {
+            color: white;
+        }
+
+        .ui-dialog .ui-dialog-content {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+    </style>
+</head>
+<body onload="init_menu(); logout()">
+    <!-- Navigation Menu -->
+    <div class="topcorner">
+        <div id="navmenu" class="navmenu" role="button" aria-label="Toggle navigation menu" aria-expanded="false" tabindex="0">
+            <img src="picz/bora.png" width="24px" height="24px" alt="Logo">
+            <img src="picz/navmenu.png" width="20px" height="20px" alt="Menu">
+        </div>
+    </div>
+
+    <ul id="menu" class="topcornermenu initially_hidden">
+        <!-- Menu items will be populated dynamically from menu.json -->
+    </ul>
+
+    <!-- Logout Content -->
+    <div>
+        <h1 id="goodbye-message">Goodbye!</h1>
+        <p id="logout-message">You have been successfully logged out. We hope to see you again soon!</p>
+        <p>Redirecting to login page in <span id="countdown">3</span> seconds...</p>
+        <p><a href="#" id="relogin-link">Click here to log in again now</a></p>
+    </div>
+
+    <script>
+        // Function to clear cookies for wiot.cz
+        function clearCookies() {
+            // Get all cookies
+            let cookies = document.cookie.split(";");
+
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i];
+                let eqPos = cookie.indexOf("=");
+                let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                // Set the cookie's expiry to a past date to delete it
+                // Include the domain and path to ensure it targets wiot.cz cookies
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;domain=wiot.cz;path=/";
+            }
+        }
+
+        // Function to handle logout
+        function logout() {
+            // First, fetch the username to personalize the message
+            $.ajax({
+                url: "https://wiot.cz/wiot/v1/user/username",
+                dataType: "json",
+                xhrFields: { withCredentials: true },
+                success: function(result) {
+                    let username = result.username || "User";
+                    $("#goodbye-message").text(`Goodbye, ${username}!`);
+                    performLogout();
+                },
+                error: function(error) {
+                    console.error("Error fetching username:", error);
+                    // Proceed with logout even if username fetch fails
+                    performLogout();
+                }
+            });
+        }
+
+        // Function to perform the actual logout
+        function performLogout() 
+        {
+          // Clear localStorage and cookies
+          localStorage.removeItem("selectedLocation");
+          clearCookies();
+          localStorage.clear(); // Clears all localStorage
+          sessionStorage.clear(); // Clears all sessionStorage
+          $.ajax({
+                url: "https://wiot.cz/wiot/v1/logout",
+                method: "POST", // Assuming POST for logout
+                dataType: "json",
+                xhrFields: { withCredentials: true },
+                success: function(result) {
+                    console.log("Logout successful:", result);
+                    // Start countdown for redirect
+                    startRedirectCountdown();
+                },
+                error: function(error) {
+                    console.error("Error during logout:", error);
+                    // Display error message
+                    $("#logout-message").after('<p class="error-message">Logout failed, but session data and cookies have been cleared. You can safely log in again.</p>');
+                    // Start countdown for redirect
+                    startRedirectCountdown();
+                }
+            });
+        }
+
+        // Function to start countdown and redirect
+        function startRedirectCountdown() {
+            let countdown = 3;
+            let countdownElement = $("#countdown");
+            let loginUrl = $("#relogin-link").attr("href");
+
+            let interval = setInterval(function() {
+                countdown--;
+                countdownElement.text(countdown);
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    window.location.href = loginUrl;
+                }
+            }, 1000);
+        }
+
+        $(document).ready(function() {
+                $("#relogin-link").attr("href", "login.html");
+        });
+    </script>
+</body>
+</html>
