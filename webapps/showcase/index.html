@@ -5,10 +5,40 @@
   <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
   <title>wiot showcase</title>
   <meta name="color-scheme" content="dark light">
+
+<style>
+header {
+  padding: 1px;
+  text-align: center;
+  background: #1abc9c;
+  color: white;
+  font-size: 30px;
+}
+</style>
+
 </head>
 
 <body>
-<h1>api showcase</h1>
+<script>
+function generateTOC() {
+  const toc = document.getElementById("toc");
+  const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+  const nestedList = document.createElement("ul");
+
+  headings.forEach((heading, index) => {
+    heading.id = "heading-" + index;
+    const listItem = document.createElement("li");
+    listItem.innerHTML = '' + heading.textContent + '';
+    nestedList.appendChild(listItem);
+  });
+
+  toc.appendChild(nestedList);
+}
+</script>
+
+<header><p>api showcase</p></header>
+
+<div id="toc"></div>
 
 <h2>user</h2>
 <p>
@@ -36,34 +66,47 @@ sensor_detail
 <a href="https://grezl.eu/wiot/v1/sensor_detail/2202">2202</a>
 </dl>
 
-<h3>House</h3>
-<dl>
-<a href="https://wiot.cz/wiot/v1/house">api house</a>
-https://wiot.cz/wiot/v1/house?output=json
-</dl>
-<dl>
-<a href="house.html">house</a>
-</dl>
+<h3>Places</h3>
 
-<h3>Rooms</h3>
+<h4>House</h4>
 <dl>
-list of rooms
-<a href="https://wiot.cz/wiot/v1/rooms">rooms</a>
+<ul>
+<li><a href="https://wiot.cz/wiot/v1/house">api house html</a>
+<li><a href="https://wiot.cz/wiot/v1/house?output=json">api house json</a>
+</ul>
 </dl>
 
 <dl>
-room content
-<a href="https://wiot.cz/wiot/v1/room">room</a>
-<a href="stuff/rooms.html">room proof of concept</a>
+<a href="/webapps/house.html">webapp house page</a>
+</dl>
+
+<h4>Rooms</h4>
+<dl>
+<ul>
+<li><a href="https://wiot.cz/wiot/v1/rooms">api rooms html</a>
+<li><a href="https://wiot.cz/wiot/v1/rooms?output=json">api rooms json</a>
+<li><a href="/webapps/room.html">room webapp page</a>
+</ul>
+</dl>
+
+<dl>
+<h4>Room</h4>
+<ul>
+<li><a href="https://grezl.eu/wiot/v1/devices">giot list of devices</a>
+<li><p>wiot api room (room content)</p>
+
+<ul>
+<li><a href="https://wiot.cz/wiot/v1/room/1">html</a>
+<li><a href="https://wiot.cz/wiot/v1/room/1?output=json">json</a>
+<li><a href="/webapps/rooms.html">room webapp page</a>
+</ul>
+</ul>
 </dl>
 
 <h3>Devices</h3>
 <dl>
 
 <ul>
-<li><a href="https://grezl.eu/wiot/v1/devices">giot list of devices</a>
-<li><a href="https://wiot.cz/wiot/v1/room/1">wiot api room (room content)</a>
-<li><a href="https://wiot.cz/wiot/v1/room/1?output=json">wiot api room (room content) json</a>
 <li><a href="https://wiot.cz/wiot/v1/devices">list of devices</a>
 <li><a href="https://wiot.cz/wiot/v1/devices?output=json">list of devices json</a>
 </ul>
@@ -74,5 +117,8 @@ room content
 <li><a href="https://wiot.cz/wiot/v1/form/thermostat0">thermmostat0 form</a>
 <li><a href="https://wiot.cz/wiot/v1/form/thermostat0?output=json">json thermmostat0 form</a>
 
+<script>
+window.addEventListener("DOMContentLoaded", generateTOC);
+</script>
 </body>
 </html>

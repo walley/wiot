@@ -1,7 +1,7 @@
 function init_menu() {
   // Fetch menu items from menu.json
   $.ajax({
-    url: "menu.json",
+    url: "menu/menu.json",
     method: "GET",
     dataType: "json",
     success: function(data) {
@@ -63,7 +63,7 @@ function init_menu() {
             .attr("title", "About This Project")
             .html(`
                 <div style="text-align: center;">
-                    <img src="menu/project-logo.png" alt="Project Logo" style="width: 100px; height: auto; margin-bottom: 10px;">
+                    <img src="picz/project-logo.png" alt="Project Logo" style="width: 100px; height: auto; margin-bottom: 10px;">
                     <p style="text-align: left;">
                         This project is a multi-house IoT system designed to manage smart devices across different homes. Users can select a house location, view rooms, and control devices like lights, switches, thermometers, thermostats, vacuum cleaners, fans, cameras, locks, speakers, and humidifiers. The system provides a user-friendly interface to monitor and interact with IoT devices remotely, enhancing home automation and convenience.
                     </p>
