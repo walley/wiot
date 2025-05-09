@@ -2,194 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="color-scheme" content="dark light">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IoT Room Selector</title>
-    <!-- Include Font Awesome for icons -->
+    <meta name="color-scheme" content="dark light">
+    <title>House - IoT System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <!-- Include jQuery UI CSS for the menu -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
-    <!-- Include jQuery and jQuery UI -->
+    <link rel="stylesheet" href="styles.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"></script>
-    <!-- Include menu.js -->
     <script src="menu/menu.js"></script>
-
-<style>
-    /* Existing styles for the room selector */
-    .room-selector {
-        width: 100%;
-        overflow-x: auto;
-        white-space: nowrap;
-        padding: 10px 0;
-        background-color: #f0f0f0;
-        margin: 10px 0;
-        user-select: none;
-        cursor: grab;
-    }
-
-    .room-selector.grabbing {
-        cursor: grabbing;
-    }
-
-    .room-button {
-        display: inline-block;
-        background-color: #007bff;
-        color: white;
-        padding: 10px 20px;
-        margin: 0 5px;
-        border-radius: 20px;
-        border: none;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s;
-    }
-
-    .room-button:hover {
-        background-color: #0056b3;
-    }
-
-    .room-button:focus {
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-
-    .room-selector::-webkit-scrollbar {
-        display: none;
-    }
-
-    .room-selector {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
-    .device-list {
-        margin: 20px 0;
-        padding: 0;
-        list-style: none;
-    }
-
-    .device-list li {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        margin: 5px 0;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 16px;
-    }
-
-    .device-list i {
-        margin-right: 10px;
-        color: #007bff;
-    }
-
-    .device-list li:hover {
-        background-color: #f9f9f9;
-    }
-
-    .header-container {
-        display: flex;
-        align-items: center;
-    }
-
-    .header-container h1 {
-        margin-right: 10px;
-    }
-
-    .edit-icon {
-        color: #007bff;
-        font-size: 20px;
-        text-decoration: none;
-        transition: color 0.3s;
-    }
-
-    .edit-icon:hover {
-        color: #0056b3;
-    }
-
-    /* Menu styles */
-    .topcorner {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        z-index: 1000;
-    }
-
-    .topcornermenu {
-        position: absolute;
-        top: 30px;
-        right: 0;
-        z-index: 1000;
-    }
-
-    .ui-menu {
-        width: 200px;
-        background-color: #f0f0f0;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
-
-    .ui-menu li {
-        padding: 8px;
-        cursor: pointer;
-    }
-
-    .ui-menu li:hover {
-        background-color: #e0e0e0;
-    }
-
-    .ui-menu-divider {
-        height: 1px;
-        background-color: #ddd;
-        margin: 5px 0;
-    }
-
-    .navmenu {
-        border-style: double;
-        display: inline-block;
-        height: 24px;
-        cursor: pointer;
-        border-color: #0056b3;
-    }
-
-    .initially_hidden {
-        display: none;
-    }
-
-    @media (max-width: 600px) {
-        .topcornermenu, .ui-menu {
-            width: 150px;
-            right: 10px;
-        }
-    }
-
-    /* Custom styles for the About dialog */
-    .ui-dialog {
-        z-index: 2000; /* Ensure the dialog appears above the menu */
-        border: 2px solid #007bff; /* Blue border to match your theme */
-        border-radius: 5px;
-    }
-
-    .ui-dialog .ui-dialog-titlebar {
-        background-color: #007bff; /* Blue title bar */
-        color: white; /* White text for the title */
-        border: none;
-        border-radius: 3px 3px 0 0;
-    }
-
-    .ui-dialog .ui-dialog-titlebar-close {
-        color: white; /* White close button */
-    }
-
-    .ui-dialog .ui-dialog-content {
-        background-color: #f9f9f9; /* Light background for content */
-        color: #333; /* Dark text for readability */
-    }
-</style>
 </head>
-<body onload="init_menu()">
+<body>
     <!-- Navigation Menu -->
     <div class="topcorner">
         <div id="navmenu" class="navmenu" role="button" aria-label="Toggle navigation menu" aria-expanded="false" tabindex="0">
@@ -204,213 +27,188 @@
 
     <!-- Room Selector Content -->
     <div class="header-container">
-        <h1>IoT Room Selector</h1>
-        <a href="https://wiot.cz/webapps/rooms.html" class="edit-icon" title="Edit Rooms">
+        <h1 id="selectedRoom">Select a room to view devices</h1>
+        <a href="location.html" class="edit-icon" title="Change Location">
             <i class="fas fa-edit"></i>
         </a>
     </div>
+
     <div id="locationInfo"></div>
     <div id="roomSelector" class="room-selector"></div>
-    <div id="deviceListContainer">
-        <h2 id="selectedRoom"></h2>
-        <ul id="deviceList" class="device-list"></ul>
-    </div>
+    <ul id="deviceList" class="device-list"></ul>
 
-<script>
-    // Function to select houseId (placeholder for now)
-    function selectHouseId(selectedLocation) {
-        // Placeholder: Always returns 0 for now
-        // TODO: Implement proper houseId selection
-        // 1. In location.html, after selecting a location, send the location to the backend (e.g., POST to https://wiot.cz/wiot/v1/houses)
-        // 2. Backend should return a unique houseId for the location
-        // 3. Store the houseId in localStorage alongside the location data (e.g., locationData.houseId = "house_123")
-        // 4. In this function, retrieve the houseId from localStorage (e.g., selectedLocation.houseId)
-        // Example future implementation:
-        // const houseId = selectedLocation.houseId || "0"; // Fallback to "0" if not found
-        // return houseId;
-        return "0";
-    }
-
-    // Function to fetch rooms (adapted from refresh_list)
-    function refresh_list(houseId, callback) {
-        $.getJSON(`https://wiot.cz/wiot/v1/rooms?output=json&houseId=${houseId}`, {
-            output: "json"
-        }, function(result) {
-            // Transform the API response into the format needed for house.html
-            const rooms = [];
-            const roomIds = {}; // Store room IDs for fetching devices
-
-            // Iterate over the rooms in the response
-            $.each(result, function(key, room) {
-                // Only include rooms that belong to the specified house
-                if (room.house === parseInt(houseId)) {
-                    const roomName = room.name;
-                    rooms.push(roomName);
-                    roomIds[roomName] = room.id; // Map room name to its ID
-                }
-            });
-
-            const transformedData = {
-                rooms: rooms,
-                roomIds: roomIds
-            };
-
-            callback(null, transformedData);
-        }).fail(function(error) {
-            console.error("Failed to fetch rooms:", error);
-            callback(error, null);
-        });
-    }
-
-    // Function to fetch devices for a specific room
-    function fetchDevices(roomId, callback) {
-        $.getJSON(`https://wiot.cz/wiot/v1/room/${roomId}?output=json`, {
-            output: "json"
-        }, function(result) {
-            // Pass the raw response object directly to the callback
-            callback(null, result || {});
-        }).fail(function(error) {
-            console.error(`Failed to fetch devices for room ${roomId}:`, error);
-            callback(error, null);
-        });
-    }
-
-    // Function to create and populate the room selector
-    function createRoomSelector() {
-        const roomSelector = document.getElementById("roomSelector");
-        const selectedRoomHeader = document.getElementById("selectedRoom");
-        const deviceList = document.getElementById("deviceList");
-        const locationInfo = document.getElementById("locationInfo");
-
-        // Get the selected house location from localStorage
-        const selectedLocation = JSON.parse(localStorage.getItem("selectedLocation"));
-        if (!selectedLocation) {
-            locationInfo.innerHTML = "<p>Please select a location first. <a href='location.html'>Go to Location Selector</a></p>";
-            selectedRoomHeader.textContent = "No location selected";
-            return;
+    <script>
+        // Function to select houseId (placeholder for now)
+        function selectHouseId(selectedLocation) {
+            return "0";
         }
 
-        // Display the selected location
-        locationInfo.innerHTML = `<p>Selected House: ${selectedLocation.address} (Lat: ${selectedLocation.latitude.toFixed(6)}, Lon: ${selectedLocation.longitude.toFixed(6)})</p>`;
+        // Function to fetch rooms (adapted from refresh_list)
+        function refresh_list(houseId, callback) {
+            $.getJSON(`https://wiot.cz/wiot/v1/rooms?output=json&houseId=${houseId}`, {
+                output: "json"
+            }, function(result) {
+                const rooms = [];
+                const roomIds = {};
 
-        // Use the house ID
-        const houseId = selectHouseId(selectedLocation);
-
-        // Fetch rooms for the selected house
-        refresh_list(houseId, (error, data) => {
-            if (error || !data) {
-                selectedRoomHeader.textContent = "Error loading rooms";
-                locationInfo.innerHTML += "<p>Failed to load rooms. Please try again.</p>";
-                return;
-            }
-
-            const rooms = data.rooms || [];
-            const roomIds = data.roomIds || {};
-
-            if (rooms.length === 0) {
-                selectedRoomHeader.textContent = "No rooms found for this house";
-                return;
-            }
-
-            // Populate the room selector
-            rooms.forEach(room => {
-                const button = document.createElement("button");
-                button.className = "room-button";
-                button.textContent = room;
-                button.addEventListener("click", () => {
-                    selectedRoomHeader.textContent = `Devices in ${room}`;
-                    deviceList.innerHTML = "";
-
-                    // Fetch devices for the selected room
-                    const roomId = roomIds[room];
-                    if (!roomId) {
-                        deviceList.innerHTML = "<li>Error: Room ID not found.</li>";
-                        return;
+                $.each(result, function(key, room) {
+                    if (room.house === parseInt(houseId)) {
+                        const roomName = room.name;
+                        rooms.push(roomName);
+                        roomIds[roomName] = room.id;
                     }
+                });
 
-                    fetchDevices(roomId, (error, devices) => {
-                        if (error) {
-                            deviceList.innerHTML = "<li>Failed to load devices.</li>";
+                const transformedData = {
+                    rooms: rooms,
+                    roomIds: roomIds
+                };
+
+                callback(null, transformedData);
+            }).fail(function(error) {
+                console.error("Failed to fetch rooms:", error);
+                callback(error, null);
+            });
+        }
+
+        // Function to fetch devices for a specific room
+        function fetchDevices(roomId, callback) {
+            $.getJSON(`https://wiot.cz/wiot/v1/room/${roomId}?output=json`, {
+                output: "json"
+            }, function(result) {
+                callback(null, result || {});
+            }).fail(function(error) {
+                console.error(`Failed to fetch devices for room ${roomId}:`, error);
+                callback(error, null);
+            });
+        }
+
+        // Function to create and populate the room selector
+        function createRoomSelector() {
+            const roomSelector = document.getElementById("roomSelector");
+            const selectedRoomHeader = document.getElementById("selectedRoom");
+            const deviceList = document.getElementById("deviceList");
+            const locationInfo = document.getElementById("locationInfo");
+
+            const selectedLocation = JSON.parse(localStorage.getItem("selectedLocation"));
+            if (!selectedLocation) {
+                locationInfo.innerHTML = "<p>Please select a location first. <a href='location.html'>Go to Location Selector</a></p>";
+                selectedRoomHeader.textContent = "No location selected";
+                return;
+            }
+
+            locationInfo.innerHTML = `<p>Selected House: ${selectedLocation.address} (Lat: ${selectedLocation.latitude.toFixed(6)}, Lon: ${selectedLocation.longitude.toFixed(6)})</p>`;
+
+            const houseId = selectHouseId(selectedLocation);
+
+            refresh_list(houseId, (error, data) => {
+                if (error || !data) {
+                    selectedRoomHeader.textContent = "Error loading rooms";
+                    locationInfo.innerHTML += "<p>Failed to load rooms. Please try again.</p>";
+                    return;
+                }
+
+                const rooms = data.rooms || [];
+                const roomIds = data.roomIds || {};
+
+                if (rooms.length === 0) {
+                    selectedRoomHeader.textContent = "No rooms found for this house";
+                    return;
+                }
+
+                rooms.forEach(room => {
+                    const button = document.createElement("button");
+                    button.className = "room-button";
+                    button.textContent = room;
+                    button.addEventListener("click", () => {
+                        selectedRoomHeader.textContent = `Devices in ${room}`;
+                        deviceList.innerHTML = "";
+
+                        const roomId = roomIds[room];
+                        if (!roomId) {
+                            deviceList.innerHTML = "<li>Error: Room ID not found.</li>";
                             return;
                         }
 
-                        // Map device types to Font Awesome icons
-                        const typeToIconMap = {
-                            "light": "fa-lightbulb",            // Icon for lights
-                            "switch": "fa-toggle-on",           // Icon for switches
-                            "thermo": "fa-thermometer-half",    // Icon for thermometers
-                            "thermostat": "fa-temperature-low", // Icon for thermostats
-                            "vacuum cleaner": "fa-robot",       // Icon for vacuum cleaners
-                            "fan": "fa-fan",                    // Icon for fans
-                            "camera": "fa-video",               // Icon for cameras
-                            "lock": "fa-lock",                  // Icon for smart locks
-                            "speaker": "fa-volume-up",          // Icon for speakers
-                            "humidifier": "fa-tint",            // Icon for humidifiers
-                            "default": "fa-cog"                 // Fallback icon for unknown types
-                        };
+                        fetchDevices(roomId, (error, devices) => {
+                            if (error) {
+                                deviceList.innerHTML = "<li>Failed to load devices.</li>";
+                                return;
+                            }
 
-                        // Check if there are any devices
-                        if (Object.keys(devices).length === 0) {
-                            const li = document.createElement("li");
-                            li.textContent = "No devices found.";
-                            deviceList.appendChild(li);
-                        } else {
-                            // Iterate over the device object directly
-                            $.each(devices, function(deviceKey, device) {
-                                const deviceType = device.type || "default";
-                                const iconClass = typeToIconMap[deviceType] || typeToIconMap["default"];
+                            const typeToIconMap = {
+                                "light": "fa-lightbulb",
+                                "switch": "fa-toggle-on",
+                                "thermo": "fa-thermometer-half",
+                                "thermostat": "fa-temperature-low",
+                                "vacuum cleaner": "fa-robot",
+                                "fan": "fa-fan",
+                                "camera": "fa-video",
+                                "lock": "fa-lock",
+                                "speaker": "fa-volume-up",
+                                "humidifier": "fa-tint",
+                                "default": "fa-cog"
+                            };
 
+                            if (Object.keys(devices).length === 0) {
                                 const li = document.createElement("li");
-                                const icon = document.createElement("i");
-                                icon.className = `fas ${iconClass}`;
-                                li.appendChild(icon);
-                                li.appendChild(document.createTextNode(device.name));
+                                li.textContent = "No devices found.";
                                 deviceList.appendChild(li);
-                            });
-                        }
+                            } else {
+                                $.each(devices, function(deviceKey, device) {
+                                    const deviceType = device.type || "default";
+                                    const iconClass = typeToIconMap[deviceType] || typeToIconMap["default"];
+
+                                    const li = document.createElement("li");
+                                    const icon = document.createElement("i");
+                                    icon.className = `fas ${iconClass}`;
+                                    li.appendChild(icon);
+                                    li.appendChild(document.createTextNode(device.name));
+                                    deviceList.appendChild(li);
+                                });
+                            }
+                        });
                     });
+                    roomSelector.appendChild(button);
                 });
-                roomSelector.appendChild(button);
+
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+
+                roomSelector.addEventListener("mousedown", (e) => {
+                    isDown = true;
+                    roomSelector.classList.add("grabbing");
+                    startX = e.pageX - roomSelector.offsetLeft;
+                    scrollLeft = roomSelector.scrollLeft;
+                });
+
+                roomSelector.addEventListener("mouseleave", () => {
+                    isDown = false;
+                    roomSelector.classList.remove("grabbing");
+                });
+
+                roomSelector.addEventListener("mouseup", () => {
+                    isDown = false;
+                    roomSelector.classList.remove("grabbing");
+                });
+
+                roomSelector.addEventListener("mousemove", (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - roomSelector.offsetLeft;
+                    const walk = (x - startX) * 2;
+                    roomSelector.scrollLeft = scrollLeft - walk;
+                });
+
+                selectedRoomHeader.textContent = "Select a room to view devices";
             });
+        }
 
-            // Add mouse gesture scrolling
-            let isDown = false;
-            let startX;
-            let scrollLeft;
-
-            roomSelector.addEventListener("mousedown", (e) => {
-                isDown = true;
-                roomSelector.classList.add("grabbing");
-                startX = e.pageX - roomSelector.offsetLeft;
-                scrollLeft = roomSelector.scrollLeft;
-            });
-
-            roomSelector.addEventListener("mouseleave", () => {
-                isDown = false;
-                roomSelector.classList.remove("grabbing");
-            });
-
-            roomSelector.addEventListener("mouseup", () => {
-                isDown = false;
-                roomSelector.classList.remove("grabbing");
-            });
-
-            roomSelector.addEventListener("mousemove", (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - roomSelector.offsetLeft;
-                const walk = (x - startX) * 2;
-                roomSelector.scrollLeft = scrollLeft - walk;
-            });
-
-            selectedRoomHeader.textContent = "Select a room to view devices";
-        });
-    }
-
-    window.onload = function() {
-        init_menu();
-        createRoomSelector();
-    };
-</script>
+        window.onload = function() {
+            init_menu();
+            createRoomSelector();
+        };
+    </script>
 </body>
 </html>
