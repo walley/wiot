@@ -1,0 +1,42 @@
+[
+  {
+    "type": "username",
+    "id": "username",
+    "text": "username"
+  },
+  {
+    "type": "item",
+    "text": "Profile"
+  },
+  {
+    "type": "link",
+    "text": "Location Selector",
+    "href": "location.html"
+  },
+  {
+    "type": "link",
+    "text": "Room Selector",
+    "href": "house.html"
+  },
+  {
+    "type": "separator"
+  },
+  {
+    "type": "link",
+    "text": "Login ...",
+    "href": "https://wiot.cz/webapps/login.html"
+  },
+  {
+    "type": "link",
+    "text": "Logout ...",
+    "href": "https://wiot.cz/webapps/logout.html"
+  },
+  {
+    "type": "separator"
+  },
+  {
+    "type": "link",
+    "text": "Help",
+    "href": "https://wiot.cz/editor-help.html"
+  }
+]
