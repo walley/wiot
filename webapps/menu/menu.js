@@ -1,53 +1,38 @@
 function init_menu() {
-  // Fetch menu items from menu.json
-  $.ajax({
-    url: "menu/menu.json",
-    method: "GET",
-    dataType: "json",
-    success: function(data) {
-      const $menu = $("#menu");
-
-      // Populate the menu with items from JSON
-      data.forEach(item => {
-        const $li = $("<li>");
-
-        if (item.type === "separator") {
-          // Separator (empty <li>)
-          $menu.append($li);
-        } else {
-          const $div = $("<div>");
-
-          if (item.type === "username") {
-            // Username item with a span
-            const $span = $("<span>")
-              .attr("id", item.id)
-              .text(item.text);
-            $div.append($("<b>").append($span));
-          } else if (item.type === "link") {
-            // Link item
-            const $a = $("<a>")
-              .attr("href", item.href)
-              .text(item.text);
-            $div.append($a);
-          } else if (item.type === "item") {
-            // Regular item (e.g., Profile)
-            $div.text(item.text);
-          }
-
-          $li.append($div);
-          $menu.append($li);
+    $("#navmenu").on("click keypress", function(e) {
+        if (e.type === "click" || (e.type === "keypress" && (e.key === "Enter" || e.key === " "))) {
+            $("#menu").toggle();
+            $(this).attr("aria-expanded", $("#menu").is(":visible"));
         }
-      });
+    });
 
-      // Initialize jQuery UI Menu after items are added
-      $menu.menu({
-        select: function(event, ui) {
-          const selectedText = ui.item.text();
-          if (selectedText === "Profile") {
-            alert("Profile clicked!"); // Replace with actual profile action
-          }
+    $(document).on("click keypress", function(e) {
+        if (!$(e.target).closest("#navmenu, #menu, .ui-dialog").length) {
+            $("#menu").hide();
+            $("#navmenu").attr("aria-expanded", "false");
         }
-      });
+    });
+
+    $("#menu").menu({
+        position: { my: "right top", at: "right bottom" }
+    });
+
+    $.getJSON("menu/menu.json", function(data) {
+        // Load menu items from menu.json
+        $.each(data.menuitems, function(index, menuitem) {
+            let li = $("<li>").appendTo("#menu");
+            if (menuitem.divider) {
+                li.addClass("ui-menu-divider");
+            } else {
+                let a = $("<a>")
+                    .attr("href", menuitem.href)
+                    .text(menuitem.label)
+                    .appendTo(li);
+                if (menuitem.id) {
+                    a.attr("id", menuitem.id);
+                }
+            }
+        });
 
         // Add the "About" menu item dynamically
         let aboutLi = $("<li>").appendTo("#menu");
@@ -63,7 +48,7 @@ function init_menu() {
             .attr("title", "About This Project")
             .html(`
                 <div style="text-align: center;">
-                    <img src="picz/project-logo.png" alt="Project Logo" style="width: 100px; height: auto; margin-bottom: 10px;">
+                    <img src="menu/project-logo.png" alt="Project Logo" style="width: 100px; height: auto; margin-bottom: 10px;">
                     <p style="text-align: left;">
                         This project is a multi-house IoT system designed to manage smart devices across different homes. Users can select a house location, view rooms, and control devices like lights, switches, thermometers, thermostats, vacuum cleaners, fans, cameras, locks, speakers, and humidifiers. The system provides a user-friendly interface to monitor and interact with IoT devices remotely, enhancing home automation and convenience.
                     </p>
@@ -74,8 +59,8 @@ function init_menu() {
         // Initialize the dialog with jQuery UI
         aboutDialog.dialog({
             autoOpen: false,
-            modal: false, // Non-modal so the user can interact with the page
-            draggable: true, // Make the dialog movable
+            modal: false,
+            draggable: true,
             resizable: false,
             width: 400,
             position: { my: "center", at: "center", of: window }
@@ -83,71 +68,32 @@ function init_menu() {
 
         // Handle click on the "About" menu item
         $("#about-menuitem").on("click", function(e) {
-            e.preventDefault(); // Prevent default link behavior
-            $("#about-dialog").dialog("open"); // Open the dialog
-            $("#menu").hide(); // Hide the menu
+            e.preventDefault();
+            $("#about-dialog").dialog("open");
+            $("#menu").hide();
             $("#navmenu").attr("aria-expanded", "false");
         });
 
-      // Apply initial hide
-      $menu.hide();
-      $("#navmenu").attr("aria-expanded", "false");
-    },
-    error: function() {
-      console.error("Failed to load menu.json");
-      $("#menu").html("<li><div>Error loading menu</div></li>");
-      $("#menu").menu();
-      $("#menu").hide();
-      $("#navmenu").attr("aria-expanded", "false");
-    }
-  });
-
-  // Set up click handler for toggling the menu
-  $("#navmenu").click(function() {
-    $("#menu").toggle();
-    const isExpanded = $("#menu").is(":visible");
-    $("#navmenu").attr("aria-expanded", isExpanded);
-  });
-
-  // Set up hover animation
-  $("#navmenu").hover(
-    function() {
-      $(this).stop().animate({"border-color": "#007bff"}, "slow");
-    },
-    function() {
-      $(this).stop().animate({"border-color": "#0056b3"}, "slow");
-    }
-  );
-
-  // Set up keypress for accessibility
-  $("#navmenu").on("keypress", function(e) {
-    if (e.key === "Enter" || e.key === " ") {
-      $("#menu").toggle();
-      const isExpanded = $("#menu").is(":visible");
-      $("#navmenu").attr("aria-expanded", isExpanded);
-    }
-  });
-
-  // Fetch the username
-  get_username();
-}
-
-function set_username() {
-  $("#username").html(username);
+        get_username();
+    }).fail(function(error) {
+        console.error("Error loading menu.json:", error);
+    });
 }
 
 function get_username() {
-  var jqxhr;
-
-  $.ajaxSetup({xhrFields: { withCredentials: true } });
-  jqxhr = $.get("https://wiot.cz/wiot/v1/username")
-    .done(function(data) {
-      username = data;
-      set_username();
-    })
-    .fail(function() {
-      $("#username").html("Error fetching username");
-    })
-    .always(function() {
+    $.ajax({
+        url: "https://wiot.cz/wiot/v1/user/username",
+        dataType: "json",
+        xhrFields: { withCredentials: true },
+        success: function(result) {
+            let username = result.username;
+            if (username) {
+                $("#menu").prepend($("<li>").text(username));
+                $("#menu").prepend($("<li>").addClass("ui-menu-divider"));
+            }
+        },
+        error: function(error) {
+            console.error("Error fetching username:", error);
+        }
     });
 }
