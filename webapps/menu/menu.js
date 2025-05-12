@@ -1,3 +1,7 @@
+var about_text = "This project is a multi-house IoT system designed to manage smart devices across different homes. Users can select a house location, view rooms,"
++"and control devices like lights, switches, thermometers, thermostats, vacuum cleaners, fans, cameras, locks, speakers, and humidifiers."
++"The system provides a user-friendly interface to monitor and interact with IoT devices remotely, enhancing home automation and convenience.";
+
 function init_menu() {
   // Fetch menu items from menu.json
   $.ajax({
@@ -58,17 +62,11 @@ function init_menu() {
             .appendTo(aboutLi);
 
         // Create the About dialog (initially hidden)
+        var logo = "<img src='picz/project-logo.png' alt='Project Logo' style='width: 100px; height: auto; margin-bottom: 10px;'>";
         let aboutDialog = $("<div>")
             .attr("id", "about-dialog")
             .attr("title", "About This Project")
-            .html(`
-                <div style="text-align: center;">
-                    <img src="picz/project-logo.png" alt="Project Logo" style="width: 100px; height: auto; margin-bottom: 10px;">
-                    <p style="text-align: left;">
-                        This project is a multi-house IoT system designed to manage smart devices across different homes. Users can select a house location, view rooms, and control devices like lights, switches, thermometers, thermostats, vacuum cleaners, fans, cameras, locks, speakers, and humidifiers. The system provides a user-friendly interface to monitor and interact with IoT devices remotely, enhancing home automation and convenience.
-                    </p>
-                </div>
-            `)
+            .html("<div style='text-align: center;'>"+logo+"<p style='text-align: left;'>"+about_text+"</p></div>")
             .appendTo("body");
 
         // Initialize the dialog with jQuery UI
