@@ -20,21 +20,34 @@ header {
 
 <body>
 <script>
+
 function generateTOC() {
-  const toc = document.getElementById("toc");
-  const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
-  const nestedList = document.createElement("ul");
+    const headers = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+    const tocContainer = document.getElementById("toc"); // Get the div where TOC should be placed
+    const toc = document.createElement("ul");
+    const tocMap = { 1: toc }; // Stores lists at different levels
 
-  headings.forEach((heading, index) => {
-    heading.id = "heading-" + index;
-    const listItem = document.createElement("li");
-    listItem.innerHTML = '' + heading.textContent + '';
-    nestedList.appendChild(listItem);
-  });
+    headers.forEach(header => {
+        const level = parseInt(header.tagName.charAt(1)); // Extract level (1 to 6)
+        const listItem = document.createElement("li");
+        listItem.textContent = header.textContent;
 
-  toc.appendChild(nestedList);
+        if (!tocMap[level]) {
+            tocMap[level] = document.createElement("ul");
+            tocMap[level - 1].appendChild(tocMap[level]);
+        }
+
+        tocMap[level].appendChild(listItem);
+    });
+
+    if (tocContainer) {
+        tocContainer.appendChild(toc); // Append TOC inside the specified div
+    } else {
+        console.error("Div with id 'toc' not found!");
+    }
 }
 </script>
+
 
 <header><p>api showcase</p></header>
 
