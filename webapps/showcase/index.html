@@ -5,6 +5,7 @@
   <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
   <title>wiot showcase</title>
   <meta name="color-scheme" content="dark light">
+  <link rel="stylesheet" href="index.css">
 
 <style>
 header {
@@ -30,7 +31,16 @@ function generateTOC() {
     headers.forEach(header => {
         const level = parseInt(header.tagName.charAt(1)); // Extract level (1 to 6)
         const listItem = document.createElement("li");
-        listItem.textContent = header.textContent;
+
+        // Ensure the header has an ID for linking
+        if (!header.id) {
+            header.id = `toc-${header.textContent.replace(/\s+/g, "-").toLowerCase()}`;
+        }
+
+        const link = document.createElement("a");
+        link.href = `#${header.id}`;
+        link.textContent = header.textContent;
+        listItem.appendChild(link);
 
         if (!tocMap[level]) {
             tocMap[level] = document.createElement("ul");

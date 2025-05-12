@@ -1,0 +1,71 @@
+/* Default Light Mode */
+#toc {
+    border: 2px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9; /* Light background */
+    width: 300px;
+    font-family: serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#toc ul {
+    list-style-type: none;
+    padding-left: 10px;
+}
+
+#toc li {
+    padding: 5px;
+    border-left: 3px solid #007bff;
+    margin-bottom: 5px;
+}
+
+#toc li:hover {
+    background-color: #e0e0e0;
+    cursor: pointer;
+}
+
+/* Nested list indentation */
+#toc ul ul {
+    margin-left: 15px;
+    border-left: 2px solid #ccc;
+}
+
+/* Clickable TOC Links */
+#toc a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+#toc a:hover {
+    text-decoration: underline;
+}
+
+/* Dark Mode Styling */
+@media (prefers-color-scheme: dark) {
+    #toc {
+        background-color: #2a2a2a; /* Dark background */
+        border-color: #555;
+        color: #ddd; /* Light text for contrast */
+    }
+
+    #toc li {
+        border-left-color: #1e90ff; /* Adjusted highlight */
+    }
+
+    #toc li:hover {
+        background-color: #444;
+    }
+
+    #toc ul ul {
+        border-left-color: #777;
+    }
+
+    #toc a {
+        color: #1e90ff;
+    }
+
+    #toc a:hover {
+        color: #4dafff;
+    }
+}
