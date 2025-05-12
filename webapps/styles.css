@@ -1,7 +1,7 @@
 /* Define CSS custom properties for theming */
 :root {
     --background-color: #f9f9f9;
-    --text-color: #333;
+    --text-color: black;
     --secondary-text-color: #666;
     --room-selector-bg: #f0f0f0;
     --room-button-bg: #007bff;
@@ -111,6 +111,10 @@ a:hover {
 .ui-menu-item li {
     padding: 8px;
     cursor: pointer;
+    color: var(--text-color);
+}
+
+.ui-widget-content a {
     color: var(--text-color);
 }
 
