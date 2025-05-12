@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <ul id="menu" class="topcornermenu initially_hidden">
+    <ul id="menu" class="topcornermenu initially_hidden" role="menu">
         <!-- Menu items will be populated dynamically from menu.json -->
     </ul>
 
@@ -35,9 +35,27 @@
 
     <div id="locationInfo"></div>
     <div id="roomSelector" class="room-selector"></div>
-    <ul id="deviceList" class="device-list"></ul>
+    <div id="deviceListContainer">
+        <h2 id="selectedRoom">Devices</h2>
+        <ul id="deviceList" class="device-list"></ul>
+    </div>
 
     <script>
+        const typeToIconMap = {
+            "light": "fa-lightbulb",            // Icon for lights
+            "switch": "fa-toggle-on",           // Icon for switches
+            "thermo": "fa-thermometer-half",    // Icon for thermometers
+            "thermostat": "fa-temperature-low", // Icon for thermostats
+            "vacuum cleaner": "fa-robot",       // Icon for vacuum cleaners
+            "fan": "fa-fan",                    // Icon for fans
+            "camera": "fa-video",               // Icon for cameras
+            "lock": "fa-lock",                  // Icon for smart locks
+            "speaker": "fa-volume-up",          // Icon for speakers
+            "humidifier": "fa-tint",            // Icon for humidifiers
+            "default": "fa-cog"                 // Fallback icon for unknown types
+        };
+
+
         // Function to select houseId (placeholder for now)
         function selectHouseId(selectedLocation) {
             return "0";
@@ -135,20 +153,6 @@
                                 deviceList.innerHTML = "<li>Failed to load devices.</li>";
                                 return;
                             }
-
-                            const typeToIconMap = {
-                                "light": "fa-lightbulb",
-                                "switch": "fa-toggle-on",
-                                "thermo": "fa-thermometer-half",
-                                "thermostat": "fa-temperature-low",
-                                "vacuum cleaner": "fa-robot",
-                                "fan": "fa-fan",
-                                "camera": "fa-video",
-                                "lock": "fa-lock",
-                                "speaker": "fa-volume-up",
-                                "humidifier": "fa-tint",
-                                "default": "fa-cog"
-                            };
 
                             if (Object.keys(devices).length === 0) {
                                 const li = document.createElement("li");
