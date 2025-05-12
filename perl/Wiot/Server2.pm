@@ -1,6 +1,6 @@
 #
 #   wiot handler, wiot
-#   Copyright (C) 2016-2024 Michal Grezl
+#   Copyright (C) 2016-2025 Michal Grezl
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -309,7 +309,7 @@ sub handler
       $out = &room_devices($api_param);
       $r->print($out);
     } elsif ($r->method() eq "PUT") {
-      #room_add();
+      &room_add($post_data{name});
       $out = "add room";
       $r->print($out);
     } elsif ($r->method() eq "DELETE") {
@@ -1867,6 +1867,30 @@ sub login_ok_github()
   $r->print("</html>\n");
 }
 
+
+################################################################################
+sub room_add()
+################################################################################
+{
+  my ($name) = @_;
+
+  wsyslog("debug","room_add($name):");
+
+  my $query = "insert into room values(null, 0, ?)";
+
+#id integer primary key AUTOINCREMENT,
+#house numeric,
+#name varchar
+
+  my $sth = $dbh->prepare($query);
+  $sth->execute($name) or do {
+    wsyslog("info", "set_input_value(): $query, error:".$DBI::errstr);
+    $error_result = 500;
+    $error_message = "set_input_value() failed";
+  };
+
+}
+
 ################################################################################
 sub room_devices()
 ################################################################################
@@ -1874,7 +1898,7 @@ sub room_devices()
   my $out ="";
   my ($param) = @_;
 
-  wsyslog("debug","rooms_devices():");
+  wsyslog("debug","room_devices():");
 
   my $query = "select * from devices where room=?";
 
