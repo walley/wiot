@@ -1,0 +1,283 @@
+/* Define CSS custom properties for theming */
+:root {
+    --background-color: #f9f9f9;
+    --text-color: #333;
+    --secondary-text-color: #666;
+    --room-selector-bg: #f0f0f0;
+    --room-button-bg: #007bff;
+    --room-button-text: white;
+    --room-button-hover-bg: #0056b3;
+    --device-list-bg: #fff;
+    --device-list-border: #ddd;
+    --device-list-hover-bg: #f9f9f9;
+    --icon-color: #007bff;
+    --menu-bg: #f0f0f0;
+    --menu-border: #ddd;
+    --menu-hover-bg: #e0e0e0;
+    --menu-divider-bg: #ddd;
+    --dialog-border: #007bff;
+    --dialog-titlebar-bg: #007bff;
+    --dialog-titlebar-text: white;
+    --dialog-content-bg: #f9f9f9;
+    --dialog-content-text: #333;
+    --error-text-color: red;
+    --link-hover-color: #0056b3;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #1e1e1e;
+        --text-color: #e0e0e0;
+        --secondary-text-color: #a0a0a0;
+        --room-selector-bg: #2d2d2d;
+        --room-button-bg: #1a73e8;
+        --room-button-text: #ffffff;
+        --room-button-hover-bg: #1557b0;
+        --device-list-bg: #2d2d2d;
+        --device-list-border: #444;
+        --device-list-hover-bg: #353535;
+        --icon-color: #1a73e8;
+        --menu-bg: #2d2d2d;
+        --menu-border: #444;
+        --menu-hover-bg: #383838;
+        --menu-divider-bg: #444;
+        --dialog-border: #1a73e8;
+        --dialog-titlebar-bg: #1a73e8;
+        --dialog-titlebar-text: #ffffff;
+        --dialog-content-bg: #2d2d2d;
+        --dialog-content-text: #e0e0e0;
+        --error-text-color: #ff5555;
+        --link-hover-color: #1557b0;
+    }
+}
+
+/* General page styles */
+body {
+    font-family: serif;
+    margin: 0;
+    padding: 20px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+h1 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+p {
+    color: var(--secondary-text-color);
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+a {
+    color: var(--icon-color);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--link-hover-color);
+}
+
+/* Menu styles */
+.topcorner {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    z-index: 1000;
+}
+
+.topcornermenu {
+    position: absolute;
+    top: 30px;
+    right: 0;
+    z-index: 1000;
+}
+
+.ui-menu {
+    width: 200px;
+    background-color: var(--menu-bg);
+    border: 1px solid var(--menu-border);
+    border-radius: 5px;
+}
+
+.ui-menu li {
+    padding: 8px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.ui-menu-item li {
+    padding: 8px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.ui-menu li:hover {
+    background-color: var(--menu-hover-bg);
+}
+
+.ui-menu-divider {
+    height: 1px;
+    background-color: var(--menu-divider-bg);
+    margin: 5px 0;
+}
+
+.navmenu {
+    border-style: double;
+    display: inline-block;
+    height: 24px;
+    cursor: pointer;
+    border-color: var(--link-hover-color);
+}
+
+.initially_hidden {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .topcornermenu, .ui-menu {
+        width: 150px;
+        right: 10px;
+    }
+}
+
+/* Dialog styles */
+.ui-dialog {
+    z-index: 2000;
+    border: 2px solid var(--dialog-border);
+    border-radius: 5px;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+    background-color: var(--dialog-titlebar-bg);
+    color: var(--dialog-titlebar-text);
+    border: none;
+    border-radius: 3px 3px 0 0;
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+    color: var(--dialog-titlebar-text);
+}
+
+.ui-dialog .ui-dialog-content {
+    background-color: var(--dialog-content-bg);
+    color: var(--dialog-content-text);
+}
+
+/* Room selector styles (house.html) */
+.room-selector {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px 0;
+    background-color: var(--room-selector-bg);
+    margin: 10px 0;
+    user-select: none;
+    cursor: grab;
+}
+
+.room-selector.grabbing {
+    cursor: grabbing;
+}
+
+.room-button {
+    display: inline-block;
+    background-color: var(--room-button-bg);
+    color: var(--room-button-text);
+    padding: 10px 20px;
+    margin: 0 5px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.room-button:hover {
+    background-color: var(--room-button-hover-bg);
+}
+
+.room-button:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.room-selector::-webkit-scrollbar {
+    display: none;
+}
+
+.room-selector {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Device list styles (house.html) */
+.device-list {
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.device-list li {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: var(--device-list-bg);
+    border: 1px solid var(--device-list-border);
+    border-radius: 5px;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+.device-list i {
+    margin-right: 10px;
+    color: var(--icon-color);
+}
+
+.device-list li:hover {
+    background-color: var(--device-list-hover-bg);
+}
+
+/* Header styles (house.html) */
+.header-container {
+    display: flex;
+    align-items: center;
+}
+
+.header-container h1 {
+    margin-right: 10px;
+}
+
+.edit-icon {
+    color: var(--icon-color);
+    font-size: 20px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.edit-icon:hover {
+    color: var(--link-hover-color);
+}
+
+/* Logout page styles (logout.html) */
+.logout-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.error-message {
+    color: var(--error-text-color);
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* Location page styles (location.html - placeholder, adjust as needed) */
+.location-container {
+    text-align: center;
+}
