@@ -3,137 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark light">
     <title>Logout - IoT System</title>
     <!-- Include Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <!-- Include jQuery UI CSS for the menu -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="styles.css"> 
     <!-- Include jQuery and jQuery UI -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"></script>
     <!-- Include menu.js -->
     <script src="menu/menu.js"></script>
-    <style>
-        /* General page styles */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f9f9f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        p {
-            color: #666;
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-
-        a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        a:hover {
-            text-decoration: underline;
-            color: #0056b3;
-        }
-
-        .error-message {
-            color: red;
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-
-        /* Menu styles (consistent with other pages) */
-        .topcorner {
-            position: absolute;
-            top: 0px;
-            right: 0px;
-            z-index: 1000;
-        }
-
-        .topcornermenu {
-            position: absolute;
-            top: 30px;
-            right: 0;
-            z-index: 1000;
-        }
-
-        .ui-menu {
-            width: 200px;
-            background-color: #f0f0f0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .ui-menu li {
-            padding: 8px;
-            cursor: pointer;
-        }
-
-        .ui-menu li:hover {
-            background-color: #e0e0e0;
-        }
-
-        .ui-menu-divider {
-            height: 1px;
-            background-color: #ddd;
-            margin: 5px 0;
-        }
-
-        .navmenu {
-            border-style: double;
-            display: inline-block;
-            height: 24px;
-            cursor: pointer;
-            border-color: #0056b3;
-        }
-
-        .initially_hidden {
-            display: none;
-        }
-
-        @media (max-width: 600px) {
-            .topcornermenu, .ui-menu {
-                width: 150px;
-                right: 10px;
-            }
-        }
-
-        /* Custom styles for the About dialog (consistent with other pages) */
-        .ui-dialog {
-            z-index: 2000;
-            border: 2px solid #007bff;
-            border-radius: 5px;
-        }
-
-        .ui-dialog .ui-dialog-titlebar {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 3px 3px 0 0;
-        }
-
-        .ui-dialog .ui-dialog-titlebar-close {
-            color: white;
-        }
-
-        .ui-dialog .ui-dialog-content {
-            background-color: #f9f9f9;
-            color: #333;
-        }
-    </style>
 </head>
 <body onload="init_menu(); logout()">
     <!-- Navigation Menu -->
@@ -208,14 +89,14 @@
                 success: function(result) {
                     console.log("Logout successful:", result);
                     // Start countdown for redirect
-                    startRedirectCountdown();
+                    //startRedirectCountdown();
                 },
                 error: function(error) {
                     console.error("Error during logout:", error);
                     // Display error message
                     $("#logout-message").after('<p class="error-message">Logout failed, but session data and cookies have been cleared. You can safely log in again.</p>');
                     // Start countdown for redirect
-                    startRedirectCountdown();
+                    //startRedirectCountdown();
                 }
             });
         }
@@ -237,7 +118,7 @@
         }
 
         $(document).ready(function() {
-                $("#relogin-link").attr("href", "login.html");
+          $("#relogin-link").attr("href", "login.html");
         });
     </script>
 </body>
