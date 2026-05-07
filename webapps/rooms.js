@@ -1,111 +1,71 @@
 var username = "anon";
 var manager;
 
-function add_room()
-{
-
-  var name = get_name();
-  var room_name = $("#add_room").val();
-  console.log("add_room:" + room_name);
-
+function add_room() {
+  var room_name = $("#add_room").val().trim();
+  if (!room_name) return alert("Please enter a room name");
 
   $.ajax({
-    url:"https://wiot.cz/wiot/v1/room",
+    url: "https://wiot.cz/wiot/v1/room",
     method: 'PUT',
     data: { name: room_name },
-    success: function(result,status,xhr) {
-      alert("add "+ xhr.status + " " + result + " " + status);
+    success: function(result, status, xhr) {
+      alert("Room added successfully");
+      $("#add_room").val("");
       refresh_list();
     },
     error: function(xhr, status, error) {
-      alert("error "+ xhr.status + " " + error);
+      alert("Error: " + xhr.status + " " + error);
     }
   });
 }
 
-function xxdelete()
-{
-  var name = get_name();
-  var gp_id = $("#delinput").val();
+function xxdelete() {
+  var room_name = $("#delinput").val().trim();
+  if (!room_name) return alert("Please enter room name to delete");
+
+  if (!confirm("Delete room '" + room_name + "'?")) return;
 
   $.ajax({
-    url: 'https://wiot.cz/table/project',
+    url: 'https://wiot.cz/wiot/v1/room',
     method: 'DELETE',
-    data: { gp_id: gp_id, project: name },
-    success: function(result) {
-      alert("done");
+    data: { name: room_name },
+    success: function() {
+      alert("Room deleted");
+      $("#delinput").val("");
       refresh_list();
     },
-    error: function(xhr,status,error) {
-      alert("error "+ xhr.status + " " + error);
+    error: function(xhr) {
+      alert("Error deleting room: " + xhr.status);
     }
   });
 }
 
-function get_name()
-{
+function get_name() {
   return $("#options").val();
 }
 
-function get_manager(project)
-{
-  alert(project);
-}
+function refresh_list() {
+  $("#rooms_list").empty();
 
+  $.getJSON("https://wiot.cz/wiot/v1/rooms?output=json", function(result) {
+    console.log(result);
 
-function createUnsortedList(obj)
-{
-  const ul = document.createElement('ul');
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const li = document.createElement('li');
-      li.textContent = key;
-      const nestedUl = document.createElement('ul');
-      for (const subKey in obj[key]) {
-        if (obj[key].hasOwnProperty(subKey)) {
-          const nestedLi = document.createElement('li');
-          nestedLi.textContent = `${subKey}: ${obj[key][subKey]}`;
-          nestedUl.appendChild(nestedLi);
-        }
-      }
-    li.appendChild(nestedUl);
-    ul.appendChild(li);
-    }
-  }
-  return ul;
-}
-
-function refresh_list()
-{
-
-  name = get_name();
-  $( "#rooms_list" ).empty();
-
-  $.getJSON("https://wiot.cz/wiot/v1/rooms?output=json",
-    {
-      output: "json",
-    },
-    function(result) {
-      var options = $("#options");
-
-      const outputDiv = document.getElementById('rooms_list');
-      outputDiv.appendChild(createUnsortedList(result));
-
-      console.log(result);
-
-      manager = result.manager;
-      $("#manager").html(manager);
-      $.each(result.imgs, function(index, value) {
-        data = index + ": <a href='https://wiot.cz/" + value[1] + "'>"+value[0]+"</a>";
-        $("#rooms_list").append(data);
-        $("#rooms_list").append(" [remove]");
-        $("#rooms_list").append("\n<br>");
+    const container = document.getElementById('rooms_list');
+    
+    if (result && typeof result === 'object') {
+      Object.keys(result).forEach(key => {
+        const roomName = typeof result[key] === 'string' ? result[key] : key;
+        
+        const card = document.createElement('div');
+        card.className = 'room-card';
+        card.innerHTML = `<div class="room-name">${roomName}</div>`;
+        container.appendChild(card);
       });
     }
-  );
 
-
-
-
+    if (result.manager) {
+      manager = result.manager;
+    }
+  });
 }
-
