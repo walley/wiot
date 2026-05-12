@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Floor Plan • WIOT</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="rooms.css">
+  <style>
+    body { margin:0; font-family: system-ui, sans-serif; background:#0f0f0f; color:#eee; display:flex; height:100vh; overflow:hidden; }
+    canvas { background:#111; image-rendering: pixelated; }
+    .sidebar {
+      width: 190px;
+      padding: 20px;
+      background: var(--device-list-bg, #1e1e1e);
+      border-right: 1px solid var(--device-list-border, #333);
+      overflow-y: auto;
+    }
+    .right-sidebar { border-left: 1px solid var(--device-list-border, #333); border-right: none; }
+    button {
+      width: 100%;
+      padding: 12px 16px;
+      margin: 6px 0;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { background: #555; }
+    button.primary { background: #0a84ff; }
+    .floor-item {
+      padding: 10px;
+      margin: 4px 0;
+      background: #252525;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .floor-item.active {
+      background: #0a84ff;
+      color: white;
+    }
+    .status {
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Left Sidebar: Floors -->
+  <div class="sidebar">
+    <h2>🏢 Floors</h2>
+    <div id="floor-list"></div>
+    <button onclick="addFloor()">+ Add Floor</button>
+    <button onclick="removeCurrentFloor()">– Remove Current Floor</button>
+  </div>
+
+  <!-- Main Canvas -->
+  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0a0a0a;">
+    <div style="margin-bottom:10px;">
+      <strong>Floor <span id="current-floor">1</span></strong>
+    </div>
+    <canvas id="canvas" width="820" height="620" style="border: 3px solid #444; border-radius: 8px;"></canvas>
+    <div class="status" id="status">Click on a room to select it</div>
+  </div>
+
+  <!-- Right Sidebar: Tools -->
+  <div class="sidebar right-sidebar">
+    <h2>🛠️ Tools</h2>
+    <button onclick="splitSelected('horizontal')">Split Horizontally</button>
+    <button onclick="splitSelected('vertical')">Split Vertically</button>
+    <button onclick="markAsOutside()">Mark as Outside</button>
+    <hr style="margin:15px 0; border-color:#444;">
+    <button onclick="exportJSON()" class="primary">Export JSON</button>
+    <button onclick="importPrompt()">Import JSON</button>
+    <button onclick="resetFloorplan()">Reset All</button>
+  </div>
+
+  <script src="floorplan.js"></script>
+  <script>
+    window.onload = initFloorplan;
+  </script>
+</body>
+</html>
