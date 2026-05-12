@@ -2,24 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Floor Plan • WIOT</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="rooms.css">
   <style>
-    body { display: flex; margin:0; font-family: system-ui, sans-serif; background: #0f0f0f; color: #ddd; }
-    canvas { background: #1a1a1a; border-right: 1px solid #444; }
+    body { margin:0; font-family: system-ui, sans-serif; display: flex; height: 100vh; background: #0f0f0f; color: #eee; }
+    canvas { background: #111; border-right: 1px solid #444; display: block; }
     .sidebar {
       width: 200px;
       padding: 20px;
-      background: var(--device-list-bg, #222);
-      border-right: 1px solid var(--device-list-border, #444);
+      background: var(--device-list-bg, #1e1e1e);
+      border-right: 1px solid var(--device-list-border, #333);
       overflow-y: auto;
     }
-    .right-sidebar { border-left: 1px solid #444; border-right: none; }
+    .right-sidebar { border-left: 1px solid #333; border-right: none; }
     button {
       width: 100%;
       padding: 12px;
-      margin: 6px 0;
+      margin: 8px 0;
       background: #333;
       color: white;
       border: none;
@@ -27,51 +28,39 @@
       cursor: pointer;
     }
     button:hover { background: #0a84ff; }
-    button.active { background: #0a84ff; }
-    .floor-item {
-      padding: 10px;
-      margin: 4px 0;
-      background: #2a2a2a;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .floor-item.selected {
-      background: #0a84ff;
-    }
+    .selected { background: #0a84ff !important; }
+    h2 { margin-top: 0; }
   </style>
 </head>
-<body>
+<body onload="initFloorplan()">
 
-  <!-- Left Sidebar: Floors -->
+  <!-- Left Sidebar - Floors -->
   <div class="sidebar">
-    <h2>Floors</h2>
-    <div id="floor-list"></div>
+    <h2>📍 Floors</h2>
+    <div id="floor-list" style="margin-bottom: 20px;"></div>
     <button onclick="addFloor()">+ Add Floor</button>
-    <button onclick="removeCurrentFloor()">– Remove Floor</button>
+    <button onclick="removeFloor()" style="background:#c42;">– Remove Current Floor</button>
   </div>
 
   <!-- Canvas -->
   <div>
-    <canvas id="canvas" width="820" height="620"></canvas>
-    <div style="text-align:center; padding:8px; background:#222;">
-      <strong>Floor <span id="current-floor-name">1</span></strong>
-    </div>
+    <canvas id="canvas" width="800" height="600"></canvas>
   </div>
 
-  <!-- Right Sidebar: Tools -->
+  <!-- Right Sidebar - Tools -->
   <div class="sidebar right-sidebar">
-    <h2>Tools</h2>
-    <p><strong>Selected:</strong> <span id="selected-room">None</span></p>
-    <button onclick="splitSelected('horizontal')">Split Horizontally</button>
-    <button onclick="splitSelected('vertical')">Split Vertically</button>
+    <h2>🛠️ Tools</h2>
+    <button onclick="splitSelected('h')">Split Horizontally</button>
+    <button onclick="splitSelected('v')">Split Vertically</button>
     <button onclick="markAsOutside()">Mark as Outside</button>
-    <button onclick="deleteSelected()">Delete Room</button>
-    <hr>
-    <button onclick="exportJSON()">💾 Export JSON</button>
+    
+    <hr style="margin: 20px 0; border-color: #444;">
+    
+    <button onclick="exportJSON()">📤 Export JSON</button>
     <button onclick="document.getElementById('import-input').click()">📥 Import JSON</button>
     <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
   </div>
 
-  <script src="floorplan.js"></script>
+<script src="floorplan.js"></script>
 </body>
 </html>
