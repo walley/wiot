@@ -1,50 +1,44 @@
-// floorplan-data.js - Data model and state management
-
-//let floors = [];
-//let currentFloor = 0;
-//let selectedRoom = null;
-
-class Room {
-  constructor(x, y, w, h, isOutside = false) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.isOutside = isOutside;
-    this.name = '';
-  }
-}
+// ================== floorplan-data.js ==================
+let floors = [];
+let currentFloor = 0;
 
 function initData() {
-  floors = [];
-  addNewFloor();
+    floors = [{
+        rooms: [
+            { id: 1, x: 100, y: 100, w: 80,  h: 400, outside: false }, // Hallway
+            { id: 2, x: 180, y: 150, w: 320, h: 300, outside: false }  // Room on the right
+        ]
+    }];
+    currentFloor = 0;
+}
+
+function getCurrentRooms() {
+    if (!floors[currentFloor]) {
+        floors[currentFloor] = { rooms: [] };
+    }
+    return floors[currentFloor].rooms;
 }
 
 function addNewFloor() {
-  const newFloor = {
-    rooms: []
-  };
-  
-  // Initial layout: Hallway + Room on the right
-  if (floors.length === 0) {
-    newFloor.rooms.push(new Room(100, 100, 80, 400, false)); // Hallway (narrow)
-    newFloor.rooms.push(new Room(200, 100, 300, 400, false)); // Main room
-  } else {
-    // Copy from previous floor
-    newFloor.rooms = floors[floors.length-1].rooms.map(r => 
-      new Room(r.x, r.y, r.w, r.h, r.isOutside)
-    );
-  }
-  
-  floors.push(newFloor);
-  currentFloor = floors.length - 1;
+    const copy = JSON.parse(JSON.stringify(getCurrentRooms()));
+    floors.push({ rooms: copy });
+    currentFloor = floors.length - 1;
+    render();
+    updateFloorList();
 }
 
-function getCurrentFloor() {
-  return floors[currentFloor];
+function removeCurrentFloor() {
+    if (floors.length <= 1) {
+        alert("You need at least one floor");
+        return;
+    }
+    floors.splice(currentFloor, 1);
+    if (currentFloor >= floors.length) currentFloor = floors.length - 1;
+    render();
+    updateFloorList();
 }
 
-function selectRoom(room) {
-  selectedRoom = room;
-}
-
+window.initData = initData;
+window.getCurrentRooms = getCurrentRooms;
+window.addNewFloor = addNewFloor;
+window.removeCurrentFloor = removeCurrentFloor;

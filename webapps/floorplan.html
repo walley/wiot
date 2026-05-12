@@ -30,16 +30,45 @@
     button:hover { background: #0a84ff; }
     .selected { background: #0a84ff !important; }
     h2 { margin-top: 0; }
-  </style>
+.floor-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.floor-item {
+    padding: 12px 16px;
+    margin: 4px 0;
+    background: #2a2a2a;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.floor-item:hover {
+    background: #3a3a3a;
+}
+
+.floor-item.active {
+    background: #0a84ff;
+    color: white;
+    font-weight: bold;
+}  </style>
 </head>
 <body onload="initFloorplan()">
 
-  <!-- Left Sidebar - Floors -->
+<!-- Left: Floors -->
   <div class="sidebar">
     <h2>📍 Floors</h2>
-    <div id="floor-list" style="margin-bottom: 20px;"></div>
-    <button onclick="addFloor()">+ Add Floor</button>
-    <button onclick="removeFloor()" style="background:#c42;">– Remove Current Floor</button>
+    <div id="floor-list" class="floor-list"></div>
+
+    <div style="margin-top: 20px;">
+      <button onclick="addFloor()" class="btn btn-primary" style="width:100%; margin-bottom:8px;">
+        + Add Floor
+      </button>
+      <button onclick="removeFloor()" class="btn btn-danger" style="width:100%;">
+        – Remove Floor
+      </button>
+    </div>
   </div>
 
   <!-- Canvas -->
@@ -53,7 +82,11 @@
     <button onclick="splitSelected('h')">Split Horizontally</button>
     <button onclick="splitSelected('v')">Split Vertically</button>
     <button onclick="markAsOutside()">Mark as Outside</button>
-    
+    <!-- New Delete Button -->
+    <button onclick="deleteSelectedRoom()" class="btn btn-danger" style="margin-top: 15px;">
+      🗑️ Delete Selected Room
+    </button>
+   
     <hr style="margin: 20px 0; border-color: #444;">
     
     <button onclick="exportJSON()">📤 Export JSON</button>
