@@ -44,4 +44,3 @@ function render() {
   });
 }
 
-export { render, canvas };

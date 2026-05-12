@@ -1,8 +1,8 @@
 // floorplan-data.js - Data model and state management
 
-let floors = [];
-let currentFloor = 0;
-let selectedRoom = null;
+//let floors = [];
+//let currentFloor = 0;
+//let selectedRoom = null;
 
 class Room {
   constructor(x, y, w, h, isOutside = false) {
@@ -48,4 +48,3 @@ function selectRoom(room) {
   selectedRoom = room;
 }
 
-export { floors, currentFloor, selectedRoom, Room, initData, addNewFloor, getCurrentFloor, selectRoom };
