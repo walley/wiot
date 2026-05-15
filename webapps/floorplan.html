@@ -32,21 +32,70 @@
       border-left: 1px solid var(--device-list-border, #333);
     }
 
-    .main-content {
+    .main-area {
       flex: 1;
-      background: #111;
       display: flex;
-      align-items: stretch;
-      justify-content: stretch;
+      flex-direction: column;
+      background: #111;
+      overflow: hidden;
+    }
+
+    .ruler-top {
+      height: 28px;
+      background: #1e1e1e;
+      border-bottom: 1px solid #444;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .canvas-container {
+      flex: 1;
+      display: flex;
       position: relative;
       overflow: hidden;
     }
 
+    .ruler-left {
+      width: 28px;
+      background: #1e1e1e;
+      border-right: 1px solid #444;
+      position: relative;
+      flex-shrink: 0;
+    }
+
     #canvas {
       background: #1a1a1a;
-      width: 100%;
-      height: 100%;
       display: block;
+    }
+
+    /* Button Styles - Restored */
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-primary, 
+    button:not(.btn-danger) {
+      background: #0a84ff;
+      color: white;
+    }
+
+    button:hover:not(.btn-danger) {
+      background: #0066cc;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #c82333;
     }
 
     .floor-item {
@@ -64,35 +113,22 @@
       font-weight: bold;
     }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin: 6px 0;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
+    .add-cross {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin: 12px 0;
     }
-    .btn-primary { background: #0a84ff; color: white; }
-    .btn-danger { background: #dc3545; color: white; }
-.add-cross {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    margin: 10px 0;
-}
-
-.cross-middle {
-    display: flex;
-    gap: 6px;
-}
-
-.cross-btn {
-    padding: 10px 14px;
-    font-size: 1rem;
-    min-width: 80px;
-}
+    .cross-middle {
+      display: flex;
+      gap: 6px;
+    }
+    .cross-btn {
+      padding: 10px 14px;
+      font-size: 1rem;
+      min-width: 85px;
+    }
   </style>
 </head>
 <body onload="initFloorplan()">
@@ -103,25 +139,36 @@
     <div id="floor-list" class="floor-list"></div>
     
     <div style="margin-top: 20px;">
-      <button onclick="addFloor()" class="btn btn-primary">+ Add Floor</button>
-      <button onclick="removeFloor()" class="btn btn-danger">– Remove Floor</button>
+      <button onclick="addFloor()" class="btn-primary">+ Add Floor</button>
+      <button onclick="removeFloor()" class="btn-danger">– Remove Floor</button>
     </div>
   </div>
 
-  <!-- Canvas Area - Now fills full space -->
-  <div class="main-content">
-    <canvas id="canvas"></canvas>
+  <!-- Main Canvas Area with Rulers -->
+  <div class="main-area">
+    <!-- Top Ruler -->
+    <div id="ruler-top" class="ruler-top"></div>
+
+    <div class="canvas-container">
+      <!-- Left Ruler -->
+      <div id="ruler-left" class="ruler-left"></div>
+      <canvas id="canvas"></canvas>
+    </div>
   </div>
 
   <!-- Right Sidebar: Tools -->
   <div class="sidebar right-sidebar">
     <h2>🛠️ Tools</h2>
+    
     <button onclick="splitSelected('h')">Split Horizontally</button>
     <button onclick="splitSelected('v')">Split Vertically</button>
     <button onclick="markAsOutside()">Mark as Outside</button>
-    <button onclick="deleteSelectedRoom()" class="btn btn-danger">🗑️ Delete Room</button>
+    <button onclick="deleteSelectedRoom()" class="btn-danger">🗑️ Delete Room</button>
 
-<!-- Cross Shape Buttons -->
+    <hr style="margin: 25px 0 15px 0; border-color: #444;">
+    
+    <p style="margin: 10px 0 8px; font-size: 0.95rem; color: #aaa;">Add Adjacent Room</p>
+    
     <div class="add-cross">
       <button onclick="addRoomAdjacent('top')"    class="cross-btn">↑ Top</button>
       <div class="cross-middle">
@@ -130,8 +177,9 @@
       </div>
       <button onclick="addRoomAdjacent('bottom')" class="cross-btn">↓ Bottom</button>
     </div>
+
+    <hr style="margin: 25px 0 15px 0; border-color: #444;">
     
-    <hr style="margin: 20px 0; border-color: #444;">
     <button onclick="exportJSON()">📤 Export JSON</button>
     <button onclick="importJSON()">📥 Import JSON</button>
   </div>

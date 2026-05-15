@@ -1,19 +1,20 @@
 // floorplan.js - Main entry point
 let canvas, ctx, selectedRoom = null;
+let scale = 1.5;           // pixels per unit (you can adjust)
+let offsetX = 40;
+let offsetY = 40;
 
 function initFloorplan() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
 
-    // Set initial canvas resolution
     resizeCanvas();
-
+    
     initData();
     setupCanvasEvents();
     render();
     updateFloorList();
 
-    // Resize when window changes
     window.addEventListener('resize', resizeCanvas);
 }
 
@@ -23,6 +24,52 @@ function resizeCanvas() {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     render();
+}
+
+// ================== Rulers ==================
+function drawRulers() {
+    const topRuler = document.getElementById('ruler-top');
+    const leftRuler = document.getElementById('ruler-left');
+
+    // Top ruler (horizontal)
+    let htmlTop = '';
+    for (let i = 0; i < canvas.width; i += 50) {
+        const realMeters = Math.round((i - offsetX) / scale);
+        htmlTop += `<div style="position:absolute; left:${i}px; top:2px; font-size:10px;">${realMeters}</div>`;
+    }
+    topRuler.innerHTML = htmlTop;
+
+    // Left ruler (vertical)
+    let htmlLeft = '';
+    for (let i = 0; i < canvas.height; i += 50) {
+        const realMeters = Math.round((i - offsetY) / scale);
+        htmlLeft += `<div style="position:absolute; top:${i}px; left:4px; font-size:10px; transform:rotate(-90deg); transform-origin:top left;">${realMeters}</div>`;
+    }
+    leftRuler.innerHTML = htmlLeft;
+}
+
+// ================== Main Render ==================
+function render() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const rooms = getCurrentRooms();
+
+    rooms.forEach(room => {
+        ctx.fillStyle = room.outside ? '#334455' : (room === selectedRoom ? '#0a84ff' : '#1e90ff');
+        ctx.fillRect(room.x, room.y, room.w, room.h);
+        
+        ctx.strokeStyle = room === selectedRoom ? '#ffffff' : '#bbbbbb';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(room.x, room.y, room.w, room.h);
+
+        // Room label
+        ctx.fillStyle = "white";
+        ctx.font = "14px Arial";
+        ctx.fillText("Room", room.x + 12, room.y + 28);
+    });
+
+    drawRulers();
 }
 
 function handleCanvasClick(e) {
