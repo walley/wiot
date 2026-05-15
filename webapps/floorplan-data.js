@@ -5,8 +5,23 @@ let currentFloor = 0;
 function initData() {
     floors = [{
         rooms: [
-            { id: 1, x: 100, y: 100, w: 80,  h: 400, outside: false }, // Hallway
-            { id: 2, x: 180, y: 150, w: 320, h: 300, outside: false }  // Room on the right
+            { 
+                id: 1, 
+                x: 120, 
+                y: 120, 
+                w: 90,   // narrow hallway
+                h: 380, 
+                outside: false 
+            }, // Hallway
+            
+            { 
+                id: 2, 
+                x: 210, 
+                y: 120, 
+                w: 340, 
+                h: 380, 
+                outside: false 
+            }  // Main room on the right (same height)
         ]
     }];
     currentFloor = 0;
@@ -38,6 +53,7 @@ function removeCurrentFloor() {
     updateFloorList();
 }
 
+// Make functions global
 window.initData = initData;
 window.getCurrentRooms = getCurrentRooms;
 window.addNewFloor = addNewFloor;

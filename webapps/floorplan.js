@@ -5,11 +5,24 @@ function initFloorplan() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
 
-    initData();           // from floorplan-data.js
-    setupCanvasEvents();  // from floorplan-render.js
-    render();             // from floorplan-render.js
+    // Set initial canvas resolution
+    resizeCanvas();
 
-    updateFloorList();    // from floorplan-tools.js
+    initData();
+    setupCanvasEvents();
+    render();
+    updateFloorList();
+
+    // Resize when window changes
+    window.addEventListener('resize', resizeCanvas);
+}
+
+function resizeCanvas() {
+    if (!canvas) return;
+    
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    render();
 }
 
 function handleCanvasClick(e) {
@@ -30,7 +43,8 @@ function handleCanvasClick(e) {
     render();
 }
 
-// Make key functions globally available
+// Make functions global
 window.initFloorplan = initFloorplan;
 window.render = render;
 window.handleCanvasClick = handleCanvasClick;
+window.resizeCanvas = resizeCanvas;
