@@ -184,7 +184,7 @@ function recenterAll() {
     const rooms = getCurrentRooms();
     if (rooms.length === 0) return;
 
-    // Calculate bounding box
+    // Calculate bounding box of all rooms
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -200,24 +200,29 @@ function recenterAll() {
     const planWidth = maxX - minX;
     const planHeight = maxY - minY;
 
-    // Center of canvas
+    // Center point of canvas
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
 
-    // Calculate offset to center the plan
-    const offsetX = Math.round(centerX - (minX + planWidth / 2));
-    const offsetY = Math.round(centerY - (minY + planHeight / 2));
+    // Calculate offset to center everything
+    const offsetX_new = Math.round(centerX - (minX + planWidth / 2));
+    const offsetY_new = Math.round(centerY - (minY + planHeight / 2));
 
     // Apply offset to all rooms
     rooms.forEach(room => {
-        room.x += offsetX;
-        room.y += offsetY;
+        room.x += offsetX_new;
+        room.y += offsetY_new;
     });
+
+    // Reset view pan/offset so we see it centered immediately
+    offsetX = 0;
+    offsetY = 0;
+    zoomLevel = 1.0;           // Optional: reset zoom too
 
     selectedRoom = null;
     render();
     
-    console.log(`Recentered with offset X:${offsetX}, Y:${offsetY}`);
+    console.log("✅ Recentered and view reset");
 }
 
 // Make functions global
