@@ -180,7 +180,45 @@ function isOverlapping(newRoom, rooms) {
     return false;
 }
 
+function recenterAll() {
+    const rooms = getCurrentRooms();
+    if (rooms.length === 0) return;
 
+    // Calculate bounding box
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    rooms.forEach(room => {
+        minX = Math.min(minX, room.x);
+        minY = Math.min(minY, room.y);
+        maxX = Math.max(maxX, room.x + room.w);
+        maxY = Math.max(maxY, room.y + room.h);
+    });
+
+    const planWidth = maxX - minX;
+    const planHeight = maxY - minY;
+
+    // Center of canvas
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // Calculate offset to center the plan
+    const offsetX = Math.round(centerX - (minX + planWidth / 2));
+    const offsetY = Math.round(centerY - (minY + planHeight / 2));
+
+    // Apply offset to all rooms
+    rooms.forEach(room => {
+        room.x += offsetX;
+        room.y += offsetY;
+    });
+
+    selectedRoom = null;
+    render();
+    
+    console.log(`Recentered with offset X:${offsetX}, Y:${offsetY}`);
+}
 
 // Make functions global
 window.splitSelected = splitSelected;
@@ -191,3 +229,4 @@ window.switchToFloor = switchToFloor;
 window.updateFloorList = updateFloorList;
 window.deleteSelectedRoom = deleteSelectedRoom;
 window.addRoomAdjacent = addRoomAdjacent;
+window.recenterAll = recenterAll;
