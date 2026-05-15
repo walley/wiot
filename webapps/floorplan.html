@@ -180,7 +180,13 @@
     </div>
 
     <hr style="margin: 25px 0 15px 0; border-color: #444;">
-    
+    <!-- New Zoom Controls -->
+    <p style="margin: 15px 0 8px; font-size: 0.95rem; color: #aaa;">Zoom</p>
+    <div style="display: flex; gap: 6px;">
+      <button onclick="zoomOut()" style="flex:1;">–</button>
+      <button onclick="resetZoom()" style="flex:1; background:#555;">100%</button>
+      <button onclick="zoomIn()" style="flex:1;">+</button>
+    </div>
     <button onclick="exportJSON()">📤 Export JSON</button>
     <button onclick="importJSON()">📥 Import JSON</button>
   </div>
