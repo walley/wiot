@@ -103,6 +103,84 @@ function deleteSelectedRoom() {
     }
 }
 
+function addRoomAdjacent(direction) {
+    if (!selectedRoom) {
+        alert("Please select a room first");
+        return;
+    }
+
+    const rooms = getCurrentRooms();
+    const size = 180;        // default new room size
+    let newRoom = null;
+
+    switch(direction) {
+        case 'right':
+            newRoom = {
+                id: Date.now(),
+                x: selectedRoom.x + selectedRoom.w,
+                y: selectedRoom.y,
+                w: size,
+                h: selectedRoom.h,
+                outside: false
+            };
+            break;
+        case 'left':
+            newRoom = {
+                id: Date.now(),
+                x: selectedRoom.x - size,
+                y: selectedRoom.y,
+                w: size,
+                h: selectedRoom.h,
+                outside: false
+            };
+            break;
+        case 'top':
+            newRoom = {
+                id: Date.now(),
+                x: selectedRoom.x,
+                y: selectedRoom.y - size,
+                w: selectedRoom.w,
+                h: size,
+                outside: false
+            };
+            break;
+        case 'bottom':
+            newRoom = {
+                id: Date.now(),
+                x: selectedRoom.x,
+                y: selectedRoom.y + selectedRoom.h,
+                w: selectedRoom.w,
+                h: size,
+                outside: false
+            };
+            break;
+    }
+
+    // Check for overlap
+    if (isOverlapping(newRoom, rooms)) {
+        alert("Not enough space in that direction!");
+        return;
+    }
+
+    rooms.push(newRoom);
+    selectedRoom = newRoom;   // auto-select the new room
+    render();
+}
+
+// Simple overlap check
+function isOverlapping(newRoom, rooms) {
+    for (let room of rooms) {
+        if (!(newRoom.x + newRoom.w <= room.x || 
+              newRoom.x >= room.x + room.w || 
+              newRoom.y + newRoom.h <= room.y || 
+              newRoom.y >= room.y + room.h)) {
+            return true; // overlap found
+        }
+    }
+    return false;
+}
+
+
 
 // Make functions global
 window.splitSelected = splitSelected;
@@ -112,3 +190,4 @@ window.removeFloor = removeFloor;
 window.switchToFloor = switchToFloor;
 window.updateFloorList = updateFloorList;
 window.deleteSelectedRoom = deleteSelectedRoom;
+window.addRoomAdjacent = addRoomAdjacent;

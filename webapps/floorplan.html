@@ -75,6 +75,24 @@
     }
     .btn-primary { background: #0a84ff; color: white; }
     .btn-danger { background: #dc3545; color: white; }
+.add-cross {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin: 10px 0;
+}
+
+.cross-middle {
+    display: flex;
+    gap: 6px;
+}
+
+.cross-btn {
+    padding: 10px 14px;
+    font-size: 1rem;
+    min-width: 80px;
+}
   </style>
 </head>
 <body onload="initFloorplan()">
@@ -102,6 +120,16 @@
     <button onclick="splitSelected('v')">Split Vertically</button>
     <button onclick="markAsOutside()">Mark as Outside</button>
     <button onclick="deleteSelectedRoom()" class="btn btn-danger">🗑️ Delete Room</button>
+
+<!-- Cross Shape Buttons -->
+    <div class="add-cross">
+      <button onclick="addRoomAdjacent('top')"    class="cross-btn">↑ Top</button>
+      <div class="cross-middle">
+        <button onclick="addRoomAdjacent('left')"  class="cross-btn">← Left</button>
+        <button onclick="addRoomAdjacent('right')" class="cross-btn">Right →</button>
+      </div>
+      <button onclick="addRoomAdjacent('bottom')" class="cross-btn">↓ Bottom</button>
+    </div>
     
     <hr style="margin: 20px 0; border-color: #444;">
     <button onclick="exportJSON()">📤 Export JSON</button>
