@@ -1,5 +1,9 @@
 // ================== floorplan-tools.js ==================
 
+// Merge mode state
+let mergeMode = false;
+let selectedForMerge = [];
+
 function splitSelected(direction) {
     if (!selectedRoom) {
         alert("Please select a room first");
@@ -45,6 +49,163 @@ function markAsOutside() {
     render();
 }
 
+// ================== Merge Mode ==================
+
+function startMergeMode() {
+    if (mergeMode) {
+        // Cancel merge mode
+        cancelMergeMode();
+    } else {
+        // Activate merge mode
+        mergeMode = true;
+        selectedForMerge = [];
+        selectedRoom = null;
+        
+        const mergeBtn = document.getElementById('merge-btn');
+        const mergeStatus = document.getElementById('merge-status');
+        
+        mergeBtn.classList.add('active');
+        mergeStatus.style.display = 'block';
+        mergeStatus.classList.add('active');
+        mergeStatus.textContent = 'Select 2 adjacent rooms to merge';
+        
+        render();
+    }
+}
+
+function cancelMergeMode() {
+    mergeMode = false;
+    selectedForMerge = [];
+    
+    const mergeBtn = document.getElementById('merge-btn');
+    const mergeStatus = document.getElementById('merge-status');
+    
+    mergeBtn.classList.remove('active');
+    mergeStatus.style.display = 'none';
+    mergeStatus.classList.remove('active');
+    
+    render();
+}
+
+function selectRoomForMerge(room) {
+    if (!mergeMode) return;
+    
+    // Check if already selected
+    const alreadySelected = selectedForMerge.find(r => r.id === room.id);
+    
+    if (alreadySelected) {
+        // Deselect
+        selectedForMerge = selectedForMerge.filter(r => r.id !== room.id);
+    } else {
+        // Add to selection (max 2)
+        if (selectedForMerge.length < 2) {
+            selectedForMerge.push(room);
+        } else {
+            // Replace the first one
+            selectedForMerge.shift();
+            selectedForMerge.push(room);
+        }
+    }
+    
+    // Update status
+    const mergeStatus = document.getElementById('merge-status');
+    if (selectedForMerge.length === 0) {
+        mergeStatus.textContent = 'Select 2 adjacent rooms to merge';
+    } else if (selectedForMerge.length === 1) {
+        mergeStatus.textContent = `1 room selected. Select one more.`;
+    } else {
+        mergeStatus.textContent = `2 rooms selected. Ready to merge!`;
+        // Auto-merge after a short delay
+        setTimeout(attemptMerge, 300);
+    }
+    
+    render();
+}
+
+function attemptMerge() {
+    if (selectedForMerge.length !== 2) return;
+    
+    const room1 = selectedForMerge[0];
+    const room2 = selectedForMerge[1];
+    
+    // Check if rooms are adjacent
+    if (!areAdjacent(room1, room2)) {
+        alert("Rooms are not adjacent! Please select two adjacent rooms.");
+        return;
+    }
+    
+    // Merge the rooms
+    const mergedRoom = mergeRooms(room1, room2);
+    const rooms = getCurrentRooms();
+    
+    // Remove both rooms and add merged room
+    const idx1 = rooms.indexOf(room1);
+    const idx2 = rooms.indexOf(room2);
+    
+    if (idx1 > -1 && idx2 > -1) {
+        // Remove in reverse order to avoid index issues
+        const removeIdx = Math.max(idx1, idx2);
+        const keepIdx = Math.min(idx1, idx2);
+        
+        rooms.splice(removeIdx, 1);
+        rooms.splice(keepIdx, 1);
+        rooms.push(mergedRoom);
+        
+        cancelMergeMode();
+        selectedRoom = mergedRoom;
+        render();
+    }
+}
+
+function areAdjacent(room1, room2) {
+    const threshold = 2; // Allow slight overlap/gap for floating point
+    
+    // Horizontally adjacent (left-right)
+    if (Math.abs(room1.x + room1.w - room2.x) < threshold && 
+        room1.y === room2.y && 
+        room1.h === room2.h) {
+        return true;
+    }
+    
+    if (Math.abs(room2.x + room2.w - room1.x) < threshold && 
+        room1.y === room2.y && 
+        room1.h === room2.h) {
+        return true;
+    }
+    
+    // Vertically adjacent (top-bottom)
+    if (Math.abs(room1.y + room1.h - room2.y) < threshold && 
+        room1.x === room2.x && 
+        room1.w === room2.w) {
+        return true;
+    }
+    
+    if (Math.abs(room2.y + room2.h - room1.y) < threshold && 
+        room1.x === room2.x && 
+        room1.w === room2.w) {
+        return true;
+    }
+    
+    return false;
+}
+
+function mergeRooms(room1, room2) {
+    // Determine the bounding box of both rooms
+    const minX = Math.min(room1.x, room2.x);
+    const minY = Math.min(room1.y, room2.y);
+    const maxX = Math.max(room1.x + room1.w, room2.x + room2.w);
+    const maxY = Math.max(room1.y + room1.h, room2.y + room2.h);
+    
+    return {
+        id: Date.now(),
+        x: minX,
+        y: minY,
+        w: maxX - minX,
+        h: maxY - minY,
+        outside: room1.outside || room2.outside  // Keep outside flag if either is outside
+    };
+}
+
 // ================== Floor Selector ==================
 
 function addFloor() {
@@ -61,6 +222,7 @@ function switchToFloor(floorIndex) {
     if (floorIndex < 0 || floorIndex >= floors.length) return;
     currentFloor = floorIndex;
     selectedRoom = null;
+    cancelMergeMode();
     render();
     updateFloorList();
 }
@@ -235,3 +397,6 @@ window.updateFloorList = updateFloorList;
 window.deleteSelectedRoom = deleteSelectedRoom;
 window.addRoomAdjacent = addRoomAdjacent;
 window.recenterAll = recenterAll;
+window.startMergeMode = startMergeMode;
+window.cancelMergeMode = cancelMergeMode;
+window.selectRoomForMerge = selectRoomForMerge;
