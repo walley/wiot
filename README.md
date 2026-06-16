@@ -196,7 +196,7 @@ This project is likely licensed under an open-source license. *(Please specify t
 
 Example:
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPLv3, see [LICENSE](LICENSE) file for details.
 
 ## Contact
 
