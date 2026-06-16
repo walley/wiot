@@ -48,7 +48,6 @@ function onMouseDown(e) {
     lastMouseY = mouseY;
 
     // Check if clicked on a room
-    selectedRoom = null;
     const rooms = getCurrentRooms();
 
     for (let room of rooms) {
@@ -59,15 +58,24 @@ function onMouseDown(e) {
 
         if (mouseX >= screenX && mouseX <= screenX + screenW &&
             mouseY >= screenY && mouseY <= screenY + screenH) {
-            selectedRoom = room;
-            render();
-            return;
+            
+            // If in merge mode, select for merge; otherwise normal selection
+            if (mergeMode) {
+                selectRoomForMerge(room);
+                return;
+            } else {
+                selectedRoom = room;
+                render();
+                return;
+            }
         }
     }
 
-    // If no room clicked → start panning
-    isDragging = true;
-    canvas.style.cursor = 'grabbing';
+    // If no room clicked → start panning (unless in merge mode)
+    if (!mergeMode) {
+        isDragging = true;
+        canvas.style.cursor = 'grabbing';
+    }
 }
 
 function onMouseMove(e) {
@@ -164,11 +172,32 @@ function render() {
         const screenW = room.w * zoomLevel;
         const screenH = room.h * zoomLevel;
 
-        ctx.fillStyle = room.outside ? '#334455' : (room === selectedRoom ? '#0a84ff' : '#1e90ff');
+        // Determine fill color
+        let fillColor = '#1e90ff'; // default
+        if (room.outside) {
+            fillColor = '#334455';
+        } else if (mergeMode && selectedForMerge.find(r => r.id === room.id)) {
+            fillColor = '#ff9800'; // orange for merge selection
+        } else if (room === selectedRoom) {
+            fillColor = '#0a84ff';
+        }
+
+        ctx.fillStyle = fillColor;
         ctx.fillRect(screenX, screenY, screenW, screenH);
         
-        ctx.strokeStyle = room === selectedRoom ? '#ffffff' : '#bbbbbb';
-        ctx.lineWidth = 4 * zoomLevel;
+        // Border
+        let strokeColor = '#bbbbbb';
+        let lineWidth = 4 * zoomLevel;
+        
+        if (mergeMode && selectedForMerge.find(r => r.id === room.id)) {
+            strokeColor = '#ffff00';
+            lineWidth = 6 * zoomLevel;
+        } else if (room === selectedRoom) {
+            strokeColor = '#ffffff';
+        }
+        
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth;
         ctx.strokeRect(screenX, screenY, screenW, screenH);
 
         ctx.fillStyle = "white";
