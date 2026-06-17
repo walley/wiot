@@ -1,0 +1,156 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  font-family: sans-serif;
+  background: #0f0f0f;
+  color: #eee;
+}
+
+.sidebar {
+  width: 190px;
+  background: var(--device-list-bg, #1e1e1e);
+  border-right: 1px solid var(--device-list-border, #333);
+  padding: 16px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.right-sidebar {
+  border-right: none;
+  border-left: 1px solid var(--device-list-border, #333);
+}
+
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #111;
+  overflow: hidden;
+}
+
+.ruler-top {
+  height: 28px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #444;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.canvas-container {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.ruler-left {
+  width: 28px;
+  background: #1e1e1e;
+  border-right: 1px solid #444;
+  position: relative;
+  flex-shrink: 0;
+}
+
+#canvas {
+  background: #1a1a1a;
+  display: block;
+}
+
+/* Button Styles - Restored */
+button {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-primary, 
+button:not(.btn-danger) {
+  background: #0a84ff;
+  color: white;
+}
+
+button:hover:not(.btn-danger) {
+  background: #0066cc;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+.btn-danger:hover {
+  background: #c82333;
+}
+
+.btn-warning {
+  background: #ff9800;
+  color: white;
+}
+.btn-warning:hover {
+  background: #e68900;
+}
+
+.btn-warning.active {
+  background: #ff6600;
+  box-shadow: 0 0 8px rgba(255, 102, 0, 0.8);
+}
+
+.merge-status {
+  padding: 10px;
+  margin: 10px 0;
+  background: #2a2a2a;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #aaa;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.merge-status.active {
+  background: #4a3000;
+  color: #ffb366;
+  border: 1px solid #ff9800;
+}
+
+.floor-item {
+  padding: 12px 16px;
+  margin: 4px 0;
+  background: #2a2a2a;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.floor-item:hover { background: #3a3a3a; }
+.floor-item.active {
+  background: #0a84ff;
+  color: white;
+  font-weight: bold;
+}
+
+.add-cross {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0;
+}
+.cross-middle {
+  display: flex;
+  gap: 6px;
+}
+.cross-btn {
+  padding: 10px 14px;
+  font-size: 1rem;
+  min-width: 85px;
+}
