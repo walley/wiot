@@ -1,6 +1,6 @@
 # wiot
 
-A Perl-based project designed as an Internet of Things (IoT) server, implemented as a `mod_perl2` module for the Apache HTTP Server. It likely acts as a central hub for data collection, device communication, and management, leveraging Apache's robust web serving capabilities. The name "wiot" suggests a focus on Wireless IoT or a "Web of IoT" integration.
+A Perl-based project designed as an Internet of Things (IoT) server, implemented as a `mod_perl2` module for the Apache HTTP Server. It acts as a central hub for data collection, device communication, and management, leveraging Apache's robust web serving capabilities. 
 
 ## Table of Contents
 
@@ -24,8 +24,8 @@ A Perl-based project designed as an Internet of Things (IoT) server, implemented
 * **Data Persistence:** Integrates with SQLite to store sensor data, device information, and other relevant IoT metrics.
 * **Perl-based Backend:** Utilizes Perl for robust server-side logic and processing.
 * **Scalable Architecture:** Benefits from Apache's ability to handle concurrent connections, making it suitable for a growing number of IoT devices.
-* **API/Protocol Handling:** (Assumed) Implements specific protocols for device communication (e.g., HTTP APIs, custom RESTful endpoints).
-* **Session Management:** Likely handles user or device sessions for authentication and authorization.
+* **API/Protocol Handling:** Implements specific protocols for device communication (e.g., HTTP APIs, custom RESTful endpoints).
+* **Session Management:** Handles user or device sessions for authentication and authorization.
 
 ## Getting Started
 
@@ -191,10 +191,6 @@ We welcome contributions to the `wiot` project! If you'd like to contribute, ple
 Please ensure your Perl code adheres to any existing coding standards and includes appropriate tests.
 
 ## License
-
-This project is likely licensed under an open-source license. *(Please specify the exact license here once confirmed, e.g., MIT, Apache 2.0, GPLv3. If no license file exists, consider adding one.)*
-
-Example:
 
 This project is licensed under the GPLv3, see [LICENSE](LICENSE) file for details.
 
